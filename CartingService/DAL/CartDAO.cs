@@ -15,41 +15,81 @@ namespace CartingService.DAL
             cartSet = database.GetCollection<Cart>("carts");
         }
 
-        public Cart Get(int id)
+        public Cart GetCartById(int id)
         {
-            Cart cart = new Cart { Items = new List<Item>() };
+            var cart = cartSet.Query()
+                .Where(x => x.Id == id)
+                .FirstOrDefault();
 
-            var result = cartSet.Query()
-                .Where(x => x.Id == id);
-
-            if (result == null)
+            if (cart != null)
             {
-                // TODO: Add an Exception to get an empty value from the database
                 return cart;
             }
             else
             {
-                // TODO: Implement the logic of getting the Item collection for Cart by Cart Id.
-                // It is possible only after the mapping is implemented in the Cart class
-
+                throw new Exception("Cart not found");
             }
-
-            return cart;
         }
 
-        public void Save(Cart cart)
+        public void AddCart(Cart cart)
         {
-
+            cartSet.Insert(cart);
         }
 
-        public void Update(Cart cart)
+        public void DeleteCart(int id)
         {
-
+            cartSet.Delete(id);
         }
 
-        public void Delete(int id)
+        public void AddItemToCart(int cartId, Item item)
         {
+            var cart = cartSet.FindById(cartId);
+            if (cart != null)
+            {
+                cart.Items.Add(item);
+                cartSet.Update(cart);
+            }
+            else
+            {
+                // Handle the case where the cart does not exist
+                throw new Exception("Cart not found");
+            }
+        }
 
+        public void RemoveItemFromCart(int cartId, int itemId)
+        {
+            var cart = cartSet.FindById(cartId);
+            if (cart != null)
+            {
+                var item = cart.Items.FirstOrDefault(i => i.Id == itemId);
+                if (item != null)
+                {
+                    cart.Items.Remove(item);
+                    cartSet.Update(cart);
+                }
+                else
+                {
+                    // Handle the case where the item does not exist in the cart
+                    throw new Exception("Item not found in the cart");
+                }
+            }
+            else
+            {
+                // Handle the case where the cart does not exist
+                throw new Exception("Cart not found");
+            }
+        }
+        public List<Item> GetItemsByCartId(int cartId)
+        {
+            var cart = cartSet.FindById(cartId);
+            if (cart != null)
+            {
+                return cart.Items;
+            }
+            else
+            {
+                throw new Exception("Cart not found");
+            }
         }
     }
 }

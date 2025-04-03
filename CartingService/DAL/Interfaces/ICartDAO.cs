@@ -4,9 +4,11 @@ namespace CartingService.DAL.Interfaces
 {
     public interface ICartDAO
     {
-        Cart Get(int id);
-        void Save(Cart cart);
-        void Update(Cart cart);
-        void Delete(int id);
+        Cart GetCartById(int id);
+        void AddCart(Cart cart);
+        void DeleteCart(int id);
+        void AddItemToCart(int cartId, Item item);
+        void RemoveItemFromCart(int cartId, int itemId);
+        List<Item> GetItemsByCartId(int cartId);
     }
 }

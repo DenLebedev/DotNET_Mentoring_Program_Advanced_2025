@@ -1,4 +1,6 @@
-﻿namespace CartingService.Entities
+﻿using LiteDB;
+
+namespace CartingService.Entities
 {
     public class Cart
     {
@@ -9,6 +11,12 @@
         {
         }
 
-        // TODO: implement mapping a reference for working with LiteDB
+        // Remove the duplicate constructor
+        [BsonCtor]
+        public Cart(int id, List<Item> items)
+        {
+            Id = id;
+            Items = items;
+        }
     }
 }
