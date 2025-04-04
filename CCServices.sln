@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35913.81 d17.13
+VisualStudioVersion = 17.13.35913.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartingService", "CartingService\CartingService.csproj", "{BA73AB52-04FA-4FDD-AAA0-AAB37124799F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartingService.Tests.", "CartingService.Tests\CartingService.Tests..csproj", "{146CA9D9-6AF9-45D6-970A-BB3C9072751F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartingService.IntegrationTests", "CartingService.IntegrationTests\CartingService.IntegrationTests.csproj", "{C1F6E435-7141-4F2C-BACB-2F7D3AD2CD81}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{BA73AB52-04FA-4FDD-AAA0-AAB37124799F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA73AB52-04FA-4FDD-AAA0-AAB37124799F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA73AB52-04FA-4FDD-AAA0-AAB37124799F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{146CA9D9-6AF9-45D6-970A-BB3C9072751F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{146CA9D9-6AF9-45D6-970A-BB3C9072751F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{146CA9D9-6AF9-45D6-970A-BB3C9072751F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{146CA9D9-6AF9-45D6-970A-BB3C9072751F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1F6E435-7141-4F2C-BACB-2F7D3AD2CD81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1F6E435-7141-4F2C-BACB-2F7D3AD2CD81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1F6E435-7141-4F2C-BACB-2F7D3AD2CD81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1F6E435-7141-4F2C-BACB-2F7D3AD2CD81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
