@@ -6,18 +6,18 @@ namespace CartingService.DAL
 {
     public class CartDAO : ICartDAO
     {
-        private LiteDatabase database;
-        private ILiteCollection<Cart> cartSet;
+        private readonly IUnitOfWork _context;
+        private readonly ILiteCollection<Cart> _cartSet;
 
-        public CartDAO(LiteDatabase context)
+        public CartDAO(IUnitOfWork context)
         {
-            database = context;
-            cartSet = database.GetCollection<Cart>("carts");
+            _context = context;
+            _cartSet = _context.GetCartCollection();
         }
 
         public Cart GetCartById(int id)
         {
-            var cart = cartSet.Query()
+            var cart = _cartSet.Query()
                 .Where(x => x.Id == id)
                 .FirstOrDefault();
 
@@ -33,21 +33,21 @@ namespace CartingService.DAL
 
         public void AddCart(Cart cart)
         {
-            cartSet.Insert(cart);
+            _cartSet.Insert(cart);
         }
 
         public void DeleteCart(int id)
         {
-            cartSet.Delete(id);
+            _cartSet.Delete(id);
         }
 
         public void AddItemToCart(int cartId, Item item)
         {
-            var cart = cartSet.FindById(cartId);
+            var cart = _cartSet.FindById(cartId);
             if (cart != null)
             {
                 cart.Items.Add(item);
-                cartSet.Update(cart);
+                _cartSet.Update(cart);
             }
             else
             {
@@ -58,14 +58,14 @@ namespace CartingService.DAL
 
         public void RemoveItemFromCart(int cartId, int itemId)
         {
-            var cart = cartSet.FindById(cartId);
+            var cart = _cartSet.FindById(cartId);
             if (cart != null)
             {
                 var item = cart.Items.FirstOrDefault(i => i.Id == itemId);
                 if (item != null)
                 {
                     cart.Items.Remove(item);
-                    cartSet.Update(cart);
+                    _cartSet.Update(cart);
                 }
                 else
                 {
@@ -81,7 +81,7 @@ namespace CartingService.DAL
         }
         public List<Item> GetItemsByCartId(int cartId)
         {
-            var cart = cartSet.FindById(cartId);
+            var cart = _cartSet.FindById(cartId);
             if (cart != null)
             {
                 return cart.Items;

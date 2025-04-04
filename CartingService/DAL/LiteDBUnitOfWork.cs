@@ -1,4 +1,5 @@
 ﻿using CartingService.DAL.Interfaces;
+using CartingService.Entities;
 using LiteDB;
 
 namespace CartingService.DAL
@@ -6,11 +7,20 @@ namespace CartingService.DAL
     public class LiteDBUnitOfWork : IUnitOfWork
     {
         private LiteDatabase database;
-        private CartDAO cartDAO;
+        private CartDAO? cartDAO;
+
+        #region Constructor
 
         public LiteDBUnitOfWork(string connectionString)
         {
             database = new LiteDatabase(connectionString);
+        }
+
+        #endregion
+
+        public ILiteCollection<Cart> GetCartCollection()
+        {
+            return database.GetCollection<Cart>("carts");
         }
 
         public ICartDAO Cart
@@ -19,7 +29,7 @@ namespace CartingService.DAL
             {
                 if (cartDAO == null)
                 {
-                    cartDAO = new CartDAO(database);
+                    cartDAO = new CartDAO(this);
                 }
                 return cartDAO;
             }
