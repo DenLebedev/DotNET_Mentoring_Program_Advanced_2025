@@ -12,6 +12,10 @@ public class CatalogDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // ✅ Explicit table name mapping
+        modelBuilder.Entity<Category>().ToTable("category");
+        modelBuilder.Entity<Product>().ToTable("product");
+
         modelBuilder.Entity<Category>(entity =>
         {
             entity.Property(c => c.Name)

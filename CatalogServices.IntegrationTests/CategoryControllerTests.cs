@@ -2,7 +2,6 @@
 using CatalogService.Application.DTOs;
 using Microsoft.AspNetCore.Mvc.Testing;
 using FluentAssertions;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 
 namespace CatalogService.Tests.Controllers;
 

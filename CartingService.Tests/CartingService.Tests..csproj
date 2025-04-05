@@ -8,6 +8,7 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,5 +26,9 @@
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
+
+  <Target Name="CopyDepsFile" AfterTargets="Build">
+    <Copy SourceFiles="$(SolutionDir)CatalogService\bin\$(Configuration)\net8.0\CatalogService.deps.json" DestinationFiles="$(OutDir)testhost.deps.json" />
+  </Target>
 
 </Project>
