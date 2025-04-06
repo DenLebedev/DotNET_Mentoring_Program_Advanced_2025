@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using CatalogService.Application.Common;
 using CatalogService.Application.DTOs;
 using CatalogService.Application.Services;
 using CatalogService.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace CatalogService.Controllers
 {
@@ -12,30 +14,40 @@ namespace CatalogService.Controllers
     {
         private readonly CategoryService _categoryService;
         private readonly IMapper _mapper;
+        private readonly IUrlHelper _urlHelper;
 
-        public CategoriesController(CategoryService categoryService, IMapper mapper)
+        public CategoriesController(CategoryService categoryService, IMapper mapper, IUrlHelper urlHelper)
         {
             _categoryService = categoryService;
             _mapper = mapper;
+            _urlHelper = urlHelper;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
             var categories = await _categoryService.GetAllAsync();
-            var result = _mapper.Map<IEnumerable<CategoryDto>>(categories);
-            return Ok(result);
+            var categoryDtos = _mapper.Map<IEnumerable<CategoryDto>>(categories);
+
+            foreach (var categoryDto in categoryDtos)
+            {
+                CreateLinksForCategory(categoryDto);
+            }
+
+            return Ok(categoryDtos);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id}", Name = "GetCategoryById")]
+        public async Task<IActionResult> Get(int id)
         {
             var category = await _categoryService.GetByIdAsync(id);
             if (category == null)
                 return NotFound();
 
-            var result = _mapper.Map<CategoryDto>(category);
-            return Ok(result);
+            var categoryDto = _mapper.Map<CategoryDto>(category);
+            CreateLinksForCategory(categoryDto);
+
+            return Ok(categoryDto);
         }
 
         [HttpPost]
@@ -43,10 +55,11 @@ namespace CatalogService.Controllers
         {
             var createdCategory = await _categoryService.AddAsync(createDto);
             var result = _mapper.Map<CategoryDto>(createdCategory);
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            CreateLinksForCategory(result);
+            return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}", Name = "UpdateCategory")]
         public async Task<IActionResult> Put(int id, [FromBody] UpdateCategoryDto updateDto)
         {
             if (id != updateDto.Id)
@@ -56,14 +69,23 @@ namespace CatalogService.Controllers
             if (updatedCategory == null)
                 return NotFound();
 
-            return NoContent();
+            var result = _mapper.Map<CategoryDto>(updatedCategory);
+            CreateLinksForCategory(result);
+            return Ok(result);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}", Name = "DeleteCategory")]
         public async Task<IActionResult> Delete(int id)
         {
             await _categoryService.DeleteAsync(id);
             return NoContent();
+        }
+
+        private void CreateLinksForCategory(CategoryDto categoryDto)
+        {
+            categoryDto.Links.Add(new Link(_urlHelper.Link("GetCategoryById", new { id = categoryDto.Id }), "self", "GET"));
+            categoryDto.Links.Add(new Link(_urlHelper.Link("UpdateCategory", new { id = categoryDto.Id }), "update_category", "PUT"));
+            categoryDto.Links.Add(new Link(_urlHelper.Link("DeleteCategory", new { id = categoryDto.Id }), "delete_category", "DELETE"));
         }
     }
 }

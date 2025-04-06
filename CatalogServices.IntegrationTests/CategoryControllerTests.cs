@@ -41,5 +41,23 @@ public class CategoriesControllerTests : IClassFixture<WebApplicationFactory<Pro
 
         var getResponse = await _client.GetAsync($"/api/categories/{created.Id}");
         getResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+
+        Dispose();
+    }
+
+    public void Dispose()
+    {
+        CleanupTestData().GetAwaiter().GetResult();
+    }
+
+    private async Task CleanupTestData()
+    {
+        var response = await _client.GetAsync("/api/categories");
+        var categories = await response.Content.ReadFromJsonAsync<IEnumerable<CategoryDto>>();
+
+        foreach (var category in categories.Where(c => c.Name == "Test Category"))
+        {
+            await _client.DeleteAsync($"/api/categories/{category.Id}");
+        }
     }
 }
