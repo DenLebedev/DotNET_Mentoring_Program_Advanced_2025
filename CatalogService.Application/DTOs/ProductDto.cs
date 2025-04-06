@@ -1,4 +1,6 @@
-﻿namespace CatalogService.Application.DTOs;
+﻿using CatalogService.Application.Common;
+
+namespace CatalogService.Application.DTOs;
 
 public class ProductDto
 {
@@ -9,4 +11,5 @@ public class ProductDto
     public decimal Price { get; set; }
     public int Amount { get; set; }
     public int CategoryId { get; set; }
+    public List<Link> Links { get; set; } = new List<Link>();
 }

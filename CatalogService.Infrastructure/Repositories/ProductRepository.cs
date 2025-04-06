@@ -14,8 +14,17 @@ public class ProductRepository : IProductRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Product>> GetAllAsync() =>
-        await _context.Products.Include(p => p.Category).ToListAsync();
+    public async Task<IEnumerable<Product>> GetProductsAsync(int? categoryId, int page, int pageSize)
+    {
+        var query = _context.Products.Include(p => p.Category).AsQueryable();
+
+        if (categoryId.HasValue)
+        {
+            query = query.Where(p => p.CategoryId == categoryId.Value);
+        }
+
+        return await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+    }
 
     public async Task<Product?> GetByIdAsync(int id) =>
         await _context.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
