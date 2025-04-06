@@ -81,6 +81,20 @@ namespace CatalogService.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{id}/with-products", Name = "DeleteCategoryWithProducts")]
+        public async Task<IActionResult> DeleteCateoryWithProducts(int id)
+        {
+            try
+            {
+                await _categoryService.DeleteCategoryWithProductsAsync(id);
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
         private void CreateLinksForCategory(CategoryDto categoryDto)
         {
             categoryDto.Links.Add(new Link(_urlHelper.Link("GetCategoryById", new { id = categoryDto.Id }), "self", "GET"));

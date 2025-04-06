@@ -9,5 +9,6 @@ namespace CatalogService.Application.Intefaces
         Task<CategoryDto> AddAsync(CreateCategoryDto categoryDto);
         Task<CategoryDto?> UpdateAsync(int id, UpdateCategoryDto categoryDto);
         Task DeleteAsync(int id);
+        Task DeleteCategoryWithProductsAsync(int id);
     }
 }
