@@ -41,9 +41,8 @@ namespace CatalogService.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CreateCategoryDto createDto)
         {
-            var category = _mapper.Map<Category>(createDto);
-            await _categoryService.AddAsync(category);
-            var result = _mapper.Map<CategoryDto>(category);
+            var createdCategory = await _categoryService.AddAsync(createDto);
+            var result = _mapper.Map<CategoryDto>(createdCategory);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
@@ -53,8 +52,10 @@ namespace CatalogService.Controllers
             if (id != updateDto.Id)
                 return BadRequest();
 
-            var category = _mapper.Map<Category>(updateDto);
-            await _categoryService.UpdateAsync(category);
+            var updatedCategory = await _categoryService.UpdateAsync(id, updateDto);
+            if (updatedCategory == null)
+                return NotFound();
+
             return NoContent();
         }
 

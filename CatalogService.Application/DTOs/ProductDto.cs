@@ -9,4 +9,5 @@ public class ProductDto
     public decimal Price { get; set; }
     public int Amount { get; set; }
     public int CategoryId { get; set; }
+    public List<LinkDto> Links { get; set; } = new List<LinkDto>();
 }

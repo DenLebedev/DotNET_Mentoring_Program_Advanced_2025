@@ -1,4 +1,6 @@
-﻿using CatalogService.Domain.Entities;
+﻿using AutoMapper;
+using CatalogService.Application.DTOs;
+using CatalogService.Domain.Entities;
 using CatalogService.Domain.Interfaces;
 
 namespace CatalogService.Application.Services;
@@ -6,36 +8,52 @@ namespace CatalogService.Application.Services;
 public class CategoryService
 {
     private readonly ICategoryRepository _repository;
+    private readonly IMapper _mapper;
 
-    public CategoryService(ICategoryRepository repository)
+    public CategoryService(ICategoryRepository repository, IMapper mapper)
     {
         _repository = repository;
+        _mapper = mapper;
     }
 
-    public async Task<IEnumerable<Category>> GetAllAsync()
+    public async Task<IEnumerable<CategoryDto>> GetAllAsync()
     {
-        return await _repository.GetAllAsync();
+        var categories = await _repository.GetAllAsync();
+        return _mapper.Map<IEnumerable<CategoryDto>>(categories);
     }
 
-    public async Task<Category?> GetByIdAsync(int id)
+    public async Task<CategoryDto?> GetByIdAsync(int id)
     {
-        return await _repository.GetByIdAsync(id);
+        var category = await _repository.GetByIdAsync(id);
+        return _mapper.Map<CategoryDto?>(category);
     }
 
-    public async Task AddAsync(Category category)
+    public async Task<CategoryDto> AddAsync(CreateCategoryDto categoryDto)
     {
-        if (string.IsNullOrWhiteSpace(category.Name) || category.Name.Length > 50)
+        if (string.IsNullOrWhiteSpace(categoryDto.Name) || categoryDto.Name.Length > 50)
             throw new ArgumentException("Name is required and must be less than or equal to 50 characters.");
 
+        var category = _mapper.Map<Category>(categoryDto);
         await _repository.AddAsync(category);
+        return _mapper.Map<CategoryDto>(category);
     }
 
-    public async Task UpdateAsync(Category category)
+    public async Task<CategoryDto?> UpdateAsync(int id, UpdateCategoryDto categoryDto)
     {
-        if (string.IsNullOrWhiteSpace(category.Name) || category.Name.Length > 50)
-            throw new ArgumentException("Name is required and must be less than or equal to 50 characters.");
+        var category = await _repository.GetByIdAsync(id);
+        if (category == null)
+        {
+            return null;
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(categoryDto.Name) || categoryDto.Name.Length > 50)
+                throw new ArgumentException("Name is required and must be less than or equal to 50 characters.");
+        }
 
+        _mapper.Map(categoryDto, category);
         await _repository.UpdateAsync(category);
+        return _mapper.Map<CategoryDto>(category);
     }
 
     public async Task DeleteAsync(int id)

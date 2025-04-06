@@ -6,5 +6,6 @@ public class CategoryDto
     public string Name { get; set; } = default!;
     public string? ImageUrl { get; set; }
     public int? ParentCategoryId { get; set; }
+    public List<LinkDto> Links { get; set; } = new List<LinkDto>();
 }
 

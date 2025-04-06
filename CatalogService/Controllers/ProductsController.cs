@@ -20,9 +20,9 @@ namespace CatalogService.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] int? categoryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var products = await _productService.GetAllAsync();
+            var products = await _productService.GetProductsAsync(categoryId, page, pageSize);
             var result = _mapper.Map<IEnumerable<ProductDto>>(products);
             return Ok(result);
         }
@@ -42,8 +42,8 @@ namespace CatalogService.Controllers
         public async Task<IActionResult> Post([FromBody] CreateProductDto createDto)
         {
             var product = _mapper.Map<Product>(createDto);
-            await _productService.AddAsync(product);
-            var result = _mapper.Map<ProductDto>(product);
+            var createdProduct = await _productService.AddAsync(createDto);
+            var result = _mapper.Map<ProductDto>(createdProduct);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
@@ -53,8 +53,10 @@ namespace CatalogService.Controllers
             if (id != updateDto.Id)
                 return BadRequest();
 
-            var product = _mapper.Map<Product>(updateDto);
-            await _productService.UpdateAsync(product);
+            var updatedProduct = await _productService.UpdateAsync(id, updateDto);
+            if (updatedProduct == null)
+                return NotFound();
+
             return NoContent();
         }
 
