@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CatalogService.Application.Common;
 using CatalogService.Application.DTOs;
 using CatalogService.Application.Services;
 using CatalogService.Domain.Entities;
@@ -12,42 +13,52 @@ namespace CatalogService.Controllers
     {
         private readonly ProductService _productService;
         private readonly IMapper _mapper;
+        private readonly IUrlHelper _urlHelper;
 
-        public ProductsController(ProductService productService, IMapper mapper)
+        public ProductsController(ProductService productService, IMapper mapper, IUrlHelper urlHelper)
         {
             _productService = productService;
             _mapper = mapper;
+            _urlHelper = urlHelper;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] int? categoryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var products = await _productService.GetProductsAsync(categoryId, page, pageSize);
-            var result = _mapper.Map<IEnumerable<ProductDto>>(products);
-            return Ok(result);
+            var productDtos = _mapper.Map<IEnumerable<ProductDto>>(products);
+
+            foreach (var productDto in productDtos)
+            {
+                CreateLinksForProduct(productDto);
+            }
+
+            return Ok(productDtos);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id}", Name = "GetProductById")]
+        public async Task<IActionResult> Get(int id)
         {
             var product = await _productService.GetByIdAsync(id);
             if (product == null)
                 return NotFound();
 
-            var result = _mapper.Map<ProductDto>(product);
-            return Ok(result);
+            var productDto = _mapper.Map<ProductDto>(product);
+            CreateLinksForProduct(productDto);
+
+            return Ok(productDto);
         }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CreateProductDto createDto)
         {
-            var product = _mapper.Map<Product>(createDto);
             var createdProduct = await _productService.AddAsync(createDto);
             var result = _mapper.Map<ProductDto>(createdProduct);
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            CreateLinksForProduct(result);
+            return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}", Name = "UpdateProduct")]
         public async Task<IActionResult> Put(int id, [FromBody] UpdateProductDto updateDto)
         {
             if (id != updateDto.Id)
@@ -57,14 +68,22 @@ namespace CatalogService.Controllers
             if (updatedProduct == null)
                 return NotFound();
 
-            return NoContent();
+            var result = _mapper.Map<ProductDto>(updatedProduct);
+            CreateLinksForProduct(result);
+            return Ok(result);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}", Name = "DeleteProduct")]
         public async Task<IActionResult> Delete(int id)
         {
             await _productService.DeleteAsync(id);
             return NoContent();
+        }
+        private void CreateLinksForProduct(ProductDto productDto)
+        {
+            productDto.Links.Add(new Link(_urlHelper.Link("GetProductById", new { id = productDto.Id }), "self", "GET"));
+            productDto.Links.Add(new Link(_urlHelper.Link("UpdateProduct", new { id = productDto.Id }), "update_product", "PUT"));
+            productDto.Links.Add(new Link(_urlHelper.Link("DeleteProduct", new { id = productDto.Id }), "delete_product", "DELETE"));
         }
     }
 }

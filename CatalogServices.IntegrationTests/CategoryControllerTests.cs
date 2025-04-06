@@ -15,7 +15,7 @@ public class CategoriesControllerTests : IClassFixture<WebApplicationFactory<Pro
     }
 
     [Fact]
-    public async Task Get_ReturnsOkStatus()
+    public async Task Get_Categories_ReturnsOkStatus()
     {
         var response = await _client.GetAsync("/api/categories");
 
@@ -24,7 +24,7 @@ public class CategoriesControllerTests : IClassFixture<WebApplicationFactory<Pro
     }
 
     [Fact]
-    public async Task Post_ThenGet_ReturnsCreatedItem()
+    public async Task Post_ThenGet_Category_ReturnsCreatedItem()
     {
         // Arrange
         var newCategory = new CreateCategoryDto { Name = "Test Category" };
@@ -45,12 +45,34 @@ public class CategoriesControllerTests : IClassFixture<WebApplicationFactory<Pro
         Dispose();
     }
 
-    public void Dispose()
+    [Fact]
+    public async Task Get_Products_ReturnsOkStatus()
     {
-        CleanupTestData().GetAwaiter().GetResult();
+        var response = await _client.GetAsync("/api/products");
+
+        response.EnsureSuccessStatusCode();
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
     }
 
-    private async Task CleanupTestData()
+    [Fact]
+    public async Task Get_Products_ReturnsOkStatus_WithHateoasLinks()
+    {
+        var response = await _client.GetAsync("/api/products");
+
+        response.EnsureSuccessStatusCode();
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+
+        var products = await response.Content.ReadFromJsonAsync<IEnumerable<ProductDto>>();
+        products.Should().NotBeNull();
+        products!.First().Links.Should().NotBeNullOrEmpty();
+    }
+
+    public void Dispose()
+    {
+        CleanupCategoryTestData().GetAwaiter().GetResult();
+    }
+
+    private async Task CleanupCategoryTestData()
     {
         var response = await _client.GetAsync("/api/categories");
         var categories = await response.Content.ReadFromJsonAsync<IEnumerable<CategoryDto>>();
