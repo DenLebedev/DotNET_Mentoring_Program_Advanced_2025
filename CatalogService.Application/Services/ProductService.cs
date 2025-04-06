@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
 using CatalogService.Application.DTOs;
+using CatalogService.Application.Intefaces;
 using CatalogService.Domain.Entities;
 using CatalogService.Domain.Interfaces;
 
 namespace CatalogService.Application.Services;
 
-public class ProductService
+public class ProductService : IProductService
 {
     private readonly IProductRepository _repository;
     private readonly IMapper _mapper;
