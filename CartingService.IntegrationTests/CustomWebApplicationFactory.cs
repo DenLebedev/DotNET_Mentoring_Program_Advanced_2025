@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using CartingService.Entities;
 using System.IO;
+using CartingService.DTOs;
 
 namespace CartingService.IntegrationTests
 {
@@ -21,7 +22,7 @@ namespace CartingService.IntegrationTests
                     services.Remove(descriptor);
                 }
                 var mockCartBL = new Mock<ICartBL>();
-                mockCartBL.Setup(x => x.AddItem(It.IsAny<int>(), It.IsAny<Item>()));
+                mockCartBL.Setup(x => x.AddItemToCartAsync(It.IsAny<string>(), It.IsAny<ItemDto>()));
                 services.AddSingleton(mockCartBL.Object);
             });
         }
