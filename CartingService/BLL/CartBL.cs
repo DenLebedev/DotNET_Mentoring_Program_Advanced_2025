@@ -1,52 +1,70 @@
-﻿using CartingService.BLL.Interfaces;
+﻿using AutoMapper;
+using CartingService.BLL.Interfaces;
 using CartingService.DAL.Interfaces;
+using CartingService.DTOs;
 using CartingService.Entities;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 
 namespace CartingService.BLL
 {
     public class CartBL : ICartBL
     {
         private readonly IUnitOfWork _uow;
+        private readonly IMapper _mapper;
 
-        #region Constructor
-        public CartBL(IUnitOfWork uow)
+        public CartBL(IUnitOfWork uow, IMapper mapper)
         {
             _uow = uow;
+            _mapper = mapper;
         }
 
-        #endregion
-
-        // TODO: Implement the validation in methods in the BLL layer
-        // Use FluentValidation or Data Annotations for validation
-
-        public Cart GetCartById(int id)
+        public async Task<CartDto?> GetCartAsync(string key)
         {
-            return _uow.Cart.GetCartById(id);
+            var cart = await _uow.Cart.GetCartAsync(key);
+            return _mapper.Map<CartDto?>(cart);
         }
 
-        public void AddCart(Cart cart)
+        public async Task AddCartAsync(CartDto cartDto)
         {
-            _uow.Cart.AddCart(cart);
+            var existingCart = await _uow.Cart.GetCartAsync(cartDto.Key);
+            if (existingCart != null)
+            {
+                throw new InvalidOperationException("A cart with this key already exists.");
+            }
+
+            var cart = _mapper.Map<Cart>(cartDto);
+
+            await _uow.Cart.AddCartAsync(cart);
         }
 
-        public void DeleteCart(int id)
+        public async Task DeleteCartAsync(string key)
         {
-            _uow.Cart.DeleteCart(id);
+            var cart = await _uow.Cart.GetCartAsync(key);
+            if (cart == null)
+            {
+                throw new InvalidOperationException("Cart not found.");
+            }
+            await _uow.Cart.DeleteCartAsync(key);
         }
 
-        public IEnumerable<Item> GetItems(int cartId)
+        public async Task AddItemToCartAsync(string key, ItemDto itemDto)
         {
-            return _uow.Cart.GetItemsByCartId(cartId);
+            var cart = await _uow.Cart.GetCartAsync(key) ?? new Cart { Key = key, Items = new List<Item>() };
+            var item = _mapper.Map<Item>(itemDto);
+            cart.Items.Add(item);
+            if (cart.Items.Count == 1)
+            {
+                await _uow.Cart.AddCartAsync(cart);
+            }
+            else
+            {
+                await _uow.Cart.UpdateCartAsync(cart);
+            }
         }
 
-        public void AddItem(int cartId, Item item)
+        public async Task DeleteItemFromCartAsync(string key, int itemId)
         {
-            _uow.Cart.AddItemToCart(cartId, item);
-        }
-
-        public void RemoveItem(int cartId, int itemId)
-        {
-            _uow.Cart.RemoveItemFromCart(cartId, itemId);
+            await _uow.Cart.DeleteCartItemAsync(key, itemId);
         }
     }
 }

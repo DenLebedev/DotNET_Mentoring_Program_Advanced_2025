@@ -1,6 +1,7 @@
 ﻿using CartingService.DAL.Interfaces;
 using CartingService.Entities;
 using LiteDB;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 
 namespace CartingService.DAL
 {
@@ -64,6 +65,11 @@ namespace CartingService.DAL
                 throw new Exception("Item not found in the cart");
             }
             cart.Items.Remove(item);
+            await Task.FromResult(_cartSet.Update(cart));
+        }
+
+        public async Task UpdateCartAsync(Cart cart)
+        {
             await Task.FromResult(_cartSet.Update(cart));
         }
     }

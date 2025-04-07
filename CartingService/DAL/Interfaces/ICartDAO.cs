@@ -9,5 +9,6 @@ namespace CartingService.DAL.Interfaces
         Task DeleteCartAsync(string key);
         Task AddItemToCartAsync(string key, Item item);
         Task DeleteCartItemAsync(string key, int itemId);
+        Task UpdateCartAsync(Cart cart);
     }
 }
