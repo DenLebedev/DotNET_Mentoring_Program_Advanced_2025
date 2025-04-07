@@ -4,11 +4,11 @@ namespace CartingService.DAL.Interfaces
 {
     public interface ICartDAO
     {
-        Cart GetCartById(int id);
-        void AddCart(Cart cart);
-        void DeleteCart(int id);
-        void AddItemToCart(int cartId, Item item);
-        void RemoveItemFromCart(int cartId, int itemId);
-        List<Item> GetItemsByCartId(int cartId);
+        Task<Cart?> GetCartAsync(string key);
+        Task AddCartAsync(Cart cart);
+        Task DeleteCartAsync(string key);
+        Task AddItemToCartAsync(string key, Item item);
+        Task DeleteCartItemAsync(string key, int itemId);
+        Task UpdateCartAsync(Cart cart);
     }
 }

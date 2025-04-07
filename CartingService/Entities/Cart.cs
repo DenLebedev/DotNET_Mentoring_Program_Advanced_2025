@@ -4,7 +4,7 @@ namespace CartingService.Entities
 {
     public class Cart
     {
-        public int Id { get; set; }
+        public string Key { get; set; }
         public required List<Item> Items { get; set; }
 
         public Cart()
@@ -13,9 +13,9 @@ namespace CartingService.Entities
 
         // Remove the duplicate constructor
         [BsonCtor]
-        public Cart(int id, List<Item> items)
+        public Cart(string key, List<Item> items)
         {
-            Id = id;
+            Key = key;
             Items = items;
         }
     }

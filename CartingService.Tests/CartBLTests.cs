@@ -1,5 +1,8 @@
-﻿using CartingService.BLL;
+﻿using AutoMapper;
+using CartingService.BLL;
+using CartingService.BLL.Interfaces;
 using CartingService.DAL.Interfaces;
+using CartingService.DTOs;
 using CartingService.Entities;
 using Moq;
 using Xunit;
@@ -8,137 +11,110 @@ namespace CartingService.Tests_
 {
     public class CartBLTests
     {
-        private readonly Mock<IUnitOfWork> _mockUnitOfWork;
-        private readonly Mock<ICartDAO> _mockCartDAO;
-        private readonly CartBL _cartBL;
+        private readonly Mock<IUnitOfWork> _mockUow;
+        private readonly Mock<IMapper> _mockMapper;
+        private readonly ICartBL _cartBL;
 
         public CartBLTests()
         {
-            _mockUnitOfWork = new Mock<IUnitOfWork>();
-            _mockCartDAO = new Mock<ICartDAO>();
-            _mockUnitOfWork.Setup(uow => uow.Cart).Returns(_mockCartDAO.Object);
-            _cartBL = new CartBL(_mockUnitOfWork.Object);
+            _mockUow = new Mock<IUnitOfWork>();
+            _mockMapper = new Mock<IMapper>();
+            _cartBL = new CartBL(_mockUow.Object, _mockMapper.Object);
         }
 
         [Fact]
-        public void GetCartById_ShouldReturnCart_WhenCartExists()
+        public async Task GetCartAsync_ShouldReturnCartDto_WhenCartExists()
         {
             // Arrange
-            var cartId = 1;
-            var expectedCart = new Cart { Id = cartId, Items = new List<Item>() };
-            _mockCartDAO.Setup(dao => dao.GetCartById(cartId)).Returns(expectedCart);
+            var key = "testKey";
+            var cart = new Cart { Key = key, Items = new List<Item>() };
+            var cartDto = new CartDto { Key = key, Items = new List<ItemDto>() };
+
+            _mockUow.Setup(u => u.Cart.GetCartAsync(key)).ReturnsAsync(cart);
+            _mockMapper.Setup(m => m.Map<CartDto?>(cart)).Returns(cartDto);
 
             // Act
-            var result = _cartBL.GetCartById(cartId);
+            var result = await _cartBL.GetCartAsync(key);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(cartId, result.Id);
+            Assert.Equal(key, result.Key);
         }
 
         [Fact]
-        public void GetCartById_ShouldReturnNull_WhenCartDoesNotExist()
+        public async Task AddCartAsync_ShouldThrowException_WhenCartAlreadyExists()
         {
             // Arrange
-            var cartId = 1;
-            _mockCartDAO.Setup(dao => dao.GetCartById(cartId)).Returns((Cart)null);
+            var cartDto = new CartDto { Key = "testKey", Items = new List<ItemDto>() };
+            var cart = new Cart { Key = "testKey", Items = new List<Item>() };
 
-            // Act
-            var result = _cartBL.GetCartById(cartId);
+            _mockUow.Setup(u => u.Cart.GetCartAsync(cartDto.Key)).ReturnsAsync(cart);
 
-            // Assert
-            Assert.Null(result);
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _cartBL.AddCartAsync(cartDto));
         }
 
         [Fact]
-        public void AddCart_ShouldCallAddCartOnUow()
+        public async Task AddCartAsync_ShouldAddCart_WhenCartDoesNotExist()
         {
             // Arrange
-            var cart = new Cart { Id = 1, Items = new List<Item>() };
+            var cartDto = new CartDto { Key = "testKey", Items = new List<ItemDto>() };
+            var cart = new Cart { Key = "testKey", Items = new List<Item>() };
+
+            _mockUow.Setup(u => u.Cart.GetCartAsync(cartDto.Key)).ReturnsAsync((Cart?)null);
+            _mockMapper.Setup(m => m.Map<Cart>(cartDto)).Returns(cart);
 
             // Act
-            _cartBL.AddCart(cart);
+            await _cartBL.AddCartAsync(cartDto);
 
             // Assert
-            _mockUnitOfWork.Verify(uow => uow.Cart.AddCart(cart), Times.Once);
+            _mockUow.Verify(u => u.Cart.AddCartAsync(cart), Times.Once);
         }
 
         [Fact]
-        public void RemoveItem_ShouldCallRemoveItemFromCartOnUow()
+        public async Task DeleteCartAsync_ShouldThrowException_WhenCartDoesNotExist()
         {
             // Arrange
-            var cartId = 1;
-            var itemId = 1;
+            var key = "testKey";
 
-            // Act
-            _cartBL.RemoveItem(cartId, itemId);
+            _mockUow.Setup(u => u.Cart.GetCartAsync(key)).ReturnsAsync((Cart?)null);
 
-            // Assert
-            _mockUnitOfWork.Verify(uow => uow.Cart.RemoveItemFromCart(cartId, itemId), Times.Once);
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _cartBL.DeleteCartAsync(key));
         }
 
         [Fact]
-        public void GetItems_ShouldReturnItems_WhenCartExists()
+        public async Task DeleteCartAsync_ShouldDeleteCart_WhenCartExists()
         {
             // Arrange
-            int cartId = 1;
-            var items = new List<Item>
-            {
-                new Item { Id = 1, Name = "Item1", ImageURL = "url1", ImageAltText = "alt1", Price = 10.0m, Quantity = 1 },
-                new Item { Id = 2, Name = "Item2", ImageURL = "url2", ImageAltText = "alt2", Price = 20.0m, Quantity = 2 }
-            };
-            _mockCartDAO.Setup(dao => dao.GetItemsByCartId(cartId)).Returns(items);
+            var key = "testKey";
+            var cart = new Cart { Key = key, Items = new List<Item>() };
+
+            _mockUow.Setup(u => u.Cart.GetCartAsync(key)).ReturnsAsync(cart);
 
             // Act
-            var result = _cartBL.GetItems(cartId);
+            await _cartBL.DeleteCartAsync(key);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Equal(2, result.Count());
-            Assert.Equal(items, result);
+            _mockUow.Verify(u => u.Cart.DeleteCartAsync(key), Times.Once);
         }
 
         [Fact]
-        public void GetItems_ShouldReturnEmptyList_WhenCartDoesNotExist()
+        public async Task AddItemToCartAsync_ShouldCreateCart_WhenCartDoesNotExist()
         {
             // Arrange
-            int cartId = 1;
-            _mockCartDAO.Setup(dao => dao.GetItemsByCartId(cartId)).Returns(new List<Item>());
+            var key = "testKey";
+            var itemDto = new ItemDto { Id = 1, Name = "Item1", Quantity = 1 };
+            var item = new Item { Id = 1, Name = "Item1", Quantity = 1, ImageURL = "http://example.com/image.jpg", ImageAltText = "Item Image" };
+
+            _mockUow.Setup(u => u.Cart.GetCartAsync(key)).ReturnsAsync((Cart?)null);
+            _mockMapper.Setup(m => m.Map<Item>(itemDto)).Returns(item);
 
             // Act
-            var result = _cartBL.GetItems(cartId);
+            await _cartBL.AddItemToCartAsync(key, itemDto);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Empty(result);
-        }
-
-        [Fact]
-        public void AddItem_ShouldCallAddItemToCart()
-        {
-            // Arrange
-            int cartId = 1;
-            var item = new Item { Id = 1, Name = "Test Item", ImageURL = "http://example.com/image.jpg", ImageAltText = "Image", Price = 10.0m, Quantity = 1 };
-
-            // Act
-            _cartBL.AddItem(cartId, item);
-
-            // Assert
-            _mockCartDAO.Verify(dao => dao.AddItemToCart(cartId, item), Times.Once);
-        }
-
-        [Fact]
-        public void RemoveItem_ShouldCallRemoveItemFromCart()
-        {
-            // Arrange
-            int cartId = 1;
-            int itemId = 1;
-
-            // Act
-            _cartBL.RemoveItem(cartId, itemId);
-
-            // Assert
-            _mockCartDAO.Verify(cart => cart.RemoveItemFromCart(cartId, itemId), Times.Once);
+            _mockUow.Verify(u => u.Cart.AddCartAsync(It.Is<Cart>(c => c.Items.Contains(item))), Times.Once);
         }
     }
 }
