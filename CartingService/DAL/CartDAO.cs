@@ -15,81 +15,56 @@ namespace CartingService.DAL
             _cartSet = _context.GetCartCollection();
         }
 
-        public Cart GetCartById(int id)
+        public async Task<Cart?> GetCartAsync(string key)
         {
-            var cart = _cartSet.Query()
-                .Where(x => x.Id == id)
-                .FirstOrDefault();
-
-            if (cart != null)
+            var cart = _cartSet.FindOne(c => c.Key == key);
+            if (cart == null)
             {
-                return cart;
+                return null;
             }
-            else
+            return await Task.FromResult(cart);
+        }
+
+        public async Task AddCartAsync(Cart cart)
+        {
+            await Task.FromResult(_cartSet.Insert(cart));
+        }
+
+        public async Task DeleteCartAsync(string key)
+        {
+            var cart = _cartSet.FindOne(c => c.Key == key);
+            if (cart == null)
             {
                 throw new Exception("Cart not found");
             }
+            await Task.FromResult(_cartSet.Delete(cart.Key));
         }
 
-        public void AddCart(Cart cart)
+        public async Task AddItemToCartAsync(string key, Item item)
         {
-            _cartSet.Insert(cart);
-        }
-
-        public void DeleteCart(int id)
-        {
-            _cartSet.Delete(id);
-        }
-
-        public void AddItemToCart(int cartId, Item item)
-        {
-            var cart = _cartSet.FindById(cartId);
-            if (cart != null)
-            {
-                cart.Items.Add(item);
-                _cartSet.Update(cart);
-            }
-            else
-            {
-                // Handle the case where the cart does not exist
-                throw new Exception("Cart not found");
-            }
-        }
-
-        public void RemoveItemFromCart(int cartId, int itemId)
-        {
-            var cart = _cartSet.FindById(cartId);
-            if (cart != null)
-            {
-                var item = cart.Items.FirstOrDefault(i => i.Id == itemId);
-                if (item != null)
-                {
-                    cart.Items.Remove(item);
-                    _cartSet.Update(cart);
-                }
-                else
-                {
-                    // Handle the case where the item does not exist in the cart
-                    throw new Exception("Item not found in the cart");
-                }
-            }
-            else
-            {
-                // Handle the case where the cart does not exist
-                throw new Exception("Cart not found");
-            }
-        }
-        public List<Item> GetItemsByCartId(int cartId)
-        {
-            var cart = _cartSet.FindById(cartId);
-            if (cart != null)
-            {
-                return cart.Items;
-            }
-            else
+            var cart = _cartSet.FindOne(c => c.Key == key);
+            if (cart == null)
             {
                 throw new Exception("Cart not found");
             }
+            cart.Items.Add(item);
+            await Task.FromResult(_cartSet.Update(cart));
+        }
+
+        public async Task DeleteCartItemAsync(string key, int itemId)
+        {
+            var cart = _cartSet.FindOne(c => c.Key == key);
+            if (cart == null)
+            {
+                throw new Exception("Cart not found");
+            }
+            var item = cart.Items.FirstOrDefault(i => i.Id == itemId);
+            if (item == null)
+            {
+                throw new Exception("Item not found in the cart");
+            }
+            cart.Items.Remove(item);
+            await Task.FromResult(_cartSet.Update(cart));
         }
     }
 }
