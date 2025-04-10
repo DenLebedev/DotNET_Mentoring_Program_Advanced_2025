@@ -66,5 +66,24 @@ namespace CartingService.BLL
         {
             await _uow.Cart.DeleteCartItemAsync(key, itemId);
         }
+
+        public async Task UpdateItemInAllCartsAsync(int productId, string newName, decimal newPrice)
+        {
+            var carts = await _uow.Cart.GetAllCartsContainingProductAsync(productId);
+
+            foreach (var cart in carts)
+            {
+                foreach (var item in cart.Items)
+                {
+                    if (item.Id == productId)
+                    {
+                        item.Name = newName;
+                        item.Price = newPrice;
+                    }
+                }
+
+                await _uow.Cart.UpdateCartAsync(cart);
+            }
+        }
     }
 }

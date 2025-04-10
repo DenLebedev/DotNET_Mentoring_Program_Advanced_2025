@@ -10,11 +10,13 @@ public class ProductService : IProductService
 {
     private readonly IProductRepository _repository;
     private readonly IMapper _mapper;
+    private readonly ISqsPublisher _publisher;
 
-    public ProductService(IProductRepository repository, IMapper mapper)
+    public ProductService(IProductRepository repository, IMapper mapper, ISqsPublisher publisher)
     {
         _repository = repository;
         _mapper = mapper;
+        _publisher = publisher;
     }
 
     public async Task<IEnumerable<ProductDto>> GetProductsAsync(int? categoryId, int page, int pageSize)
@@ -62,6 +64,17 @@ public class ProductService : IProductService
 
         _mapper.Map(productDto, product);
         await _repository.UpdateAsync(product);
+
+        // Publish update to SQS
+        var message = new CatalogItemUpdatedMessage
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Price = product.Price
+        };
+
+        await _publisher.PublishCatalogItemUpdatedAsync(message);
+
         return _mapper.Map<ProductDto>(product);
     }
 

@@ -8,6 +8,10 @@ using CatalogService.Infrastructure.Context;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc;
+using Amazon.SQS;
+using CatalogService.Application.Intefaces;
+using CatalogService.Application.AWS;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +21,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddAutoMapper(typeof(CatalogMappingProfile));
+
+// Add AWS SQS support
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonSQS>();
+builder.Services.AddScoped<ISqsPublisher, SqsPublisher>();
 
 // Add Application & Infrastructure dependencies
 builder.Services.AddScoped<CategoryService>();

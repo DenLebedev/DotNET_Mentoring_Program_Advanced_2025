@@ -17,9 +17,9 @@ namespace CartingService.Entities
         }
 
         [BsonCtor]
-        public Item(int _id, string name, string imageURL, string imageAltText, decimal price, int quantity)
+        public Item(int id, string name, string imageURL, string imageAltText, decimal price, int quantity)
         {
-            Id = _id;
+            Id = id;
             Name = name;
             ImageURL = imageURL;
             ImageAltText = imageAltText;
