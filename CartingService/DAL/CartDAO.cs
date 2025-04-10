@@ -72,5 +72,14 @@ namespace CartingService.DAL
         {
             await Task.FromResult(_cartSet.Update(cart));
         }
+
+        public async Task<IEnumerable<Cart>> GetAllCartsContainingProductAsync(int productId)
+        {
+            return await Task.Run(() =>
+            {
+                var carts = _cartSet.FindAll();
+                return carts.Where(c => c.Items != null && c.Items.Any(i => i.Id == productId)).ToList();
+            });
+        }
     }
 }

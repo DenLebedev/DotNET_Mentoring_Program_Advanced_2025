@@ -1,0 +1,21 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "AllowSQSPublishAndConsume",
+        "Effect": "Allow",
+        "Action": [
+          "sqs:SendMessage",
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueUrl",
+          "sqs:GetQueueAttributes",
+          "sqs:ChangeMessageVisibility"
+        ],
+        "Resource": [
+          "arn:aws:sqs:eu-central-1:471112964757:CatalogItemUpdatesQueue",
+          "arn:aws:sqs:eu-central-1:471112964757:CatalogItemUpdatesDLQ"
+        ]
+      }
+    ]
+  }

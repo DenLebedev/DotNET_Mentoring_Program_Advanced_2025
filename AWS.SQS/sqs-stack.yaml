@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: SQS setup for inter-service communication between CatalogService and CartingService
+
+Resources:
+  CatalogItemUpdatesDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: CatalogItemUpdatesDLQ
+      MessageRetentionPeriod: 1209600  # 14 days (max retention)
+
+  CatalogItemUpdatesQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: CatalogItemUpdatesQueue
+      VisibilityTimeout: 30
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt CatalogItemUpdatesDLQ.Arn
+        maxReceiveCount: 5  # After 5 failed receives, message goes to DLQ
+
+Outputs:
+  CatalogItemUpdatesQueueUrl:
+    Description: URL of the main queue
+    Value: !Ref CatalogItemUpdatesQueue
+
+  CatalogItemUpdatesQueueArn:
+    Description: ARN of the main queue
+    Value: !GetAtt CatalogItemUpdatesQueue.Arn
+
+  CatalogItemUpdatesDLQUrl:
+    Description: URL of the dead-letter queue
+    Value: !Ref CatalogItemUpdatesDLQ
+
+  CatalogItemUpdatesDLQArn:
+    Description: ARN of the dead-letter queue
+    Value: !GetAtt CatalogItemUpdatesDLQ.Arn

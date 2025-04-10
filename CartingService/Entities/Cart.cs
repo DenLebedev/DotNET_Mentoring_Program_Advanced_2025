@@ -4,6 +4,7 @@ namespace CartingService.Entities
 {
     public class Cart
     {
+        [BsonId]
         public string Key { get; set; }
         public required List<Item> Items { get; set; }
 

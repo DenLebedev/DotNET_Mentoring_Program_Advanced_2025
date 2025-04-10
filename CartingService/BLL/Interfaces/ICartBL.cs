@@ -10,5 +10,6 @@ namespace CartingService.BLL.Interfaces
         Task DeleteCartAsync(string key);
         Task AddItemToCartAsync(string key, ItemDto itemDto);
         Task DeleteItemFromCartAsync(string key, int itemId);
+        Task UpdateItemInAllCartsAsync(int productId, string newName, decimal newPrice);
     }
 }

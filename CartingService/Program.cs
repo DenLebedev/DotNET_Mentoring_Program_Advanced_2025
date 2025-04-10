@@ -6,15 +6,12 @@ using CartingService.DAL.Interfaces;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Mvc;
 using CartingService.Mappings;
+using Amazon.SQS;
+using CartingService.Listeners;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
 // Add services to the container
-// builder.Services.AddControllers()
-//     .AddApplicationPart(typeof(CartingService.Controllers.V1.CartV1Controller).Assembly)
-//     .AddApplicationPart(typeof(CartingService.Controllers.V2.CartV2Controller).Assembly);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -22,6 +19,11 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 // Register the IUnitOfWork and ICartBL services
 builder.Services.AddScoped<IUnitOfWork>(sp => new LiteDBUnitOfWork("Filename=CartingService.db;Connection=shared"));
 builder.Services.AddScoped<ICartBL, CartBL>();
+
+// Add AWS SQS support
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonSQS>();
+builder.Services.AddHostedService<CatalogItemUpdateListener>();
 
 // Add API Versioning
 builder.Services.AddApiVersioning(options =>
