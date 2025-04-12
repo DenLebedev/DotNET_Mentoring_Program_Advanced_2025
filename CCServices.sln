@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatalogService.Tests", "Cat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatalogServices.IntegrationTests", "CatalogServices.IntegrationTests\CatalogServices.IntegrationTests.csproj", "{00DDE882-D77A-4678-8929-F5CDE799B84A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityService", "IdentityService\IdentityService.csproj", "{60EBABDA-8349-4539-B3E3-BAF0DE28CE2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{00DDE882-D77A-4678-8929-F5CDE799B84A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00DDE882-D77A-4678-8929-F5CDE799B84A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00DDE882-D77A-4678-8929-F5CDE799B84A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60EBABDA-8349-4539-B3E3-BAF0DE28CE2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60EBABDA-8349-4539-B3E3-BAF0DE28CE2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60EBABDA-8349-4539-B3E3-BAF0DE28CE2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60EBABDA-8349-4539-B3E3-BAF0DE28CE2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
