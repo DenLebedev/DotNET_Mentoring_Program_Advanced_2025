@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using CartingService.Mappings;
 using Amazon.SQS;
 using CartingService.Listeners;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +60,22 @@ builder.Services.AddSwaggerGen(options =>
 // Register Swagger options config
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
+// Add JWT authentication
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.Authority = "https://localhost:5051"; // IdentityService endpoint
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = false
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CustomerOrManager", policy => policy.RequireRole("Manager", "StoreCustomer"));
+});
+
 var app = builder.Build();
 
 // Get the version description provider
@@ -83,9 +100,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
+app.UseMiddleware<CartingService.Middleware.TokenLoggingMiddleware>();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

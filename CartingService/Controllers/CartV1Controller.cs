@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using CartingService.BLL.Interfaces;
 using CartingService.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CartingService.Controllers.V1
 {
+    [Authorize(Roles = "Manager,StoreCustomer")]
     [ApiVersion("1.0")]
     [ApiExplorerSettings(GroupName = "v1")]
     [Route("api/v{version:apiVersion}/cart")]
