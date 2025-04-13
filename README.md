@@ -1,18 +1,99 @@
 # DotNET_Mentoring_Program_Advanced_2025
-.NET Mentoring Program Advanced [Asia Q1/Q2 2025]
 
-Notes
+## Project Overview
 
-[4/5/2025]
+This solution contains three primary services implemented in ASP.NET Core (.NET 8):
 
+- `IdentityService` – Handles user authentication, token issuance (access + refresh tokens), and role management using Duende IdentityServer.
+- `CatalogService` – A secured service with role-based access. Only users with the `Manager` role can modify catalog data.
+- `CartingService` – A secured service accessible to both `Manager` and `StoreCustomer` roles. It logs token details via custom middleware.
+
+## Notes
+
+### [4/5/2025]
+```
 -   The CartingService project uses a NoSQL DB (LiteDB), the DB file is saved in the project root directory.
 
 -   The CatalogService project uses a SQL DB (MySQL), the script (CatalogServiceDB_Create_Schema_Tables.sql) for creating the DB is located in the CatalogService\SQLScripts folder.
+```
 
-[4/10/2025]
-
+### [4/10/2025]
+```
 -   AWS SQS is selected as the Message Broker.
     To test AWS SQS, you need to configure the following parameters in the AWS CLI or set environment variables:
     export AWS_ACCESS_KEY_ID= your-access-key // Provided upon request
     export AWS_SECRET_ACCESS_KEY=your-secret-key // Provided upon request
     export AWS_REGION=eu-central-1
+```
+
+### [4/13/2025]
+
+#### User Credentials and Roles
+
+| Username              | Password       | Role          | Permissions                   |
+|-----------------------|----------------|---------------|-------------------------------|
+| manager@test.com      | Manager123$    | Manager       | read, create, update, delete  |
+| customer@test.com     | Customer123$   | StoreCustomer | read                          |
+
+---
+
+#### Testing Instructions
+
+##### 1. Start All Services
+
+Make sure the following services are running:
+
+- IdentityService: `https://localhost:7051`
+- CatalogService: `https://localhost:7052`
+- CartingService: `https://localhost:7053`
+
+##### 2. Get a Token
+
+**Using curl:**
+
+```
+curl -k -X POST https://localhost:7051/connect/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=password&client_id=swagger-ui&client_secret=swagger-secret&username=manager@test.com&password=Manager123$&scope=openid profile catalog_api carting_api offline_access"
+```
+
+Copy the `access_token` and use it in Swagger or Postman.
+
+---
+
+##### 3. Refresh Token
+
+```
+curl -k -X POST https://localhost:7051/connect/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=refresh_token&client_id=swagger-ui&client_secret=swagger-secret&refresh_token=YOUR_REFRESH_TOKEN"
+```
+
+---
+
+#### Access Control
+
+| Service        | Endpoint Access              | Authorized Roles       |
+|----------------|-------------------------------|-------------------------|
+| CatalogService | `GET` (public)                | All users               |
+| CatalogService | `POST/PUT/DELETE`             | Manager only            |
+| CartingService | All endpoints                 | Manager, StoreCustomer  |
+
+---
+
+#### Token Logging
+
+CartingService logs the following info for each request:
+
+- Subject (`sub`)
+- Roles
+- Permissions
+
+Console output example:
+
+```
+Access Token Details:
+ - Subject (sub): a12bc34d...
+ - Roles: StoreCustomer
+ - Permissions: read
+```
