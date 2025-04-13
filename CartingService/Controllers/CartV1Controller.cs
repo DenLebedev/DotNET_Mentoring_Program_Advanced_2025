@@ -1,13 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using CartingService.BLL.Interfaces;
 using CartingService.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CartingService.Controllers.V1
 {
     [ApiVersion("1.0")]
     [ApiExplorerSettings(GroupName = "v1")]
-    [Route("api/v{version:apiVersion}/cart")]
+    [Authorize(Roles = "Manager,StoreCustomer")]
     [ApiController]
+    [Route("api/v{version:apiVersion}/cart")]
     public class CartV1Controller : ControllerBase
     {
         private readonly ILogger<CartV1Controller> _logger;

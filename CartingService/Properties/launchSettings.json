@@ -1,25 +1,35 @@
 {
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:11883",
+      "sslPort": 44330
+    }
+  },
   "profiles": {
-    "http": {
+    "CartingService (http)": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5178"
-    },
-    "https": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "swagger",
+      "applicationUrl": "http://localhost:5053",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "AWS_PROFILE": "catalog-sqs-dev"
-      },
+      }
+    },
+    "CartingService (https)": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5178"
+      "applicationUrl": "https://localhost:7053;http://localhost:5053",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "AWS_PROFILE": "catalog-sqs-dev"
+      }
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -28,15 +38,6 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
-    }
-  },
-  "$schema": "http://json.schemastore.org/launchsettings.json",
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:11883",
-      "sslPort": 44330
     }
   }
 }

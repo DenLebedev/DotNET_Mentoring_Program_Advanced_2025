@@ -2,9 +2,8 @@
 using CatalogService.Application.Common;
 using CatalogService.Application.DTOs;
 using CatalogService.Application.Services;
-using CatalogService.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CatalogService.Controllers
 {
@@ -24,6 +23,7 @@ namespace CatalogService.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
             var categories = await _categoryService.GetAllAsync();
@@ -38,6 +38,7 @@ namespace CatalogService.Controllers
         }
 
         [HttpGet("{id}", Name = "GetCategoryById")]
+        [AllowAnonymous]
         public async Task<IActionResult> Get(int id)
         {
             var category = await _categoryService.GetByIdAsync(id);
@@ -51,6 +52,7 @@ namespace CatalogService.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Post([FromBody] CreateCategoryDto createDto)
         {
             var createdCategory = await _categoryService.AddAsync(createDto);
@@ -60,6 +62,7 @@ namespace CatalogService.Controllers
         }
 
         [HttpPut("{id}", Name = "UpdateCategory")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Put(int id, [FromBody] UpdateCategoryDto updateDto)
         {
             if (id != updateDto.Id)
@@ -75,6 +78,7 @@ namespace CatalogService.Controllers
         }
 
         [HttpDelete("{id}", Name = "DeleteCategory")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Delete(int id)
         {
             await _categoryService.DeleteAsync(id);
@@ -82,6 +86,7 @@ namespace CatalogService.Controllers
         }
 
         [HttpDelete("{id}/with-products", Name = "DeleteCategoryWithProducts")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> DeleteCateoryWithProducts(int id)
         {
             try
