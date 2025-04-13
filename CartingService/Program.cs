@@ -44,7 +44,6 @@ builder.Services.AddVersionedApiExplorer(options =>
 // Add SwaggerGen
 builder.Services.AddSwaggerGen(options =>
 {
-    // You’ll add actual docs per version below using a provider
     options.DocInclusionPredicate((docName, apiDesc) =>
     {
         var groupName = apiDesc.GroupName;
@@ -52,9 +51,41 @@ builder.Services.AddSwaggerGen(options =>
     });
 
     options.OperationFilter<SwaggerDefaultValues>();
-
-    // Required for showing correct versioning info in Swagger
     options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+
+    options.AddSecurityDefinition("oauth2", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.OAuth2,
+        Flows = new Microsoft.OpenApi.Models.OpenApiOAuthFlows
+        {
+            Password = new Microsoft.OpenApi.Models.OpenApiOAuthFlow
+            {
+                TokenUrl = new Uri("https://localhost:7051/connect/token"),
+                Scopes = new Dictionary<string, string>
+                {
+                    { "carting_api", "Access to Carting API" },
+                    { "openid", "OpenID Connect" },
+                    { "profile", "User Profile" },
+                    { "offline_access", "Refresh Token" }
+                }
+            }
+        }
+    });
+
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "oauth2"
+                }
+            },
+            new[] { "carting_api" }
+        }
+    });
 });
 
 // Register Swagger options config
@@ -64,7 +95,8 @@ builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
-        options.Authority = "https://localhost:5051"; // IdentityService endpoint
+        options.Authority = "https://localhost:7051";
+        options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = false
@@ -73,7 +105,8 @@ builder.Services.AddAuthentication("Bearer")
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("CustomerOrManager", policy => policy.RequireRole("Manager", "StoreCustomer"));
+    options.AddPolicy("CustomerOrManager", policy =>
+        policy.RequireRole("Manager", "StoreCustomer"));
 });
 
 var app = builder.Build();
@@ -94,6 +127,11 @@ if (app.Environment.IsDevelopment())
                 $"/swagger/{desc.GroupName}/swagger.json",
                 $"CartingService API {desc.GroupName.ToUpperInvariant()}");
         }
+
+        options.OAuthClientId("swagger-ui");
+        options.OAuthClientSecret("swagger-secret");
+        options.OAuthAppName("CartingService Swagger UI");
+        options.OAuthUsePkce();
     });
 
     app.UseDeveloperExceptionPage();

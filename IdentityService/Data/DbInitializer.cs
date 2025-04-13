@@ -28,21 +28,20 @@ namespace IdentityService.Data
         private static async Task CreateUserIfNotExists(UserManager<IdentityUser> userManager, IdentityUser user, string role, string password, string[] permissions)
         {
             var existingUser = await userManager.FindByEmailAsync(user.Email);
-            if (existingUser == null)
+            if (existingUser != null)
+                return;
+
+            var createResult = await userManager.CreateAsync(user, password);
+            if (!createResult.Succeeded)
+                return;
+
+            await userManager.AddToRoleAsync(user, role);
+
+            await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role));
+
+            foreach (var permission in permissions)
             {
-                var result = await userManager.CreateAsync(user, password);
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(user, role);
-
-                    // Add permission claims
-                    foreach (var perm in permissions)
-                    {
-                        await userManager.AddClaimAsync(user, new Claim("permission", perm));
-                    }
-
-                    await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role));
-                }
+                await userManager.AddClaimAsync(user, new Claim("permission", permission));
             }
         }
     }

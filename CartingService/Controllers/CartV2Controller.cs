@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace CartingService.Controllers.V2
 {
-    [Authorize(Roles = "Manager,StoreCustomer")]
     [ApiVersion("2.0")]
     [ApiExplorerSettings(GroupName = "v2")]
-    [Route("api/v{version:apiVersion}/cart")]
+    [Authorize(Roles = "Manager,StoreCustomer")]
     [ApiController]
+    [Route("api/v{version:apiVersion}/cart")]
     public class CartV2Controller : ControllerBase
     {
         private readonly ILogger<CartV2Controller> _logger;

@@ -19,7 +19,46 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "CatalogService", Version = "v1" });
+
+    // Add OAuth2 support
+    c.AddSecurityDefinition("oauth2", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.OAuth2,
+        Flows = new Microsoft.OpenApi.Models.OpenApiOAuthFlows
+        {
+            Password = new Microsoft.OpenApi.Models.OpenApiOAuthFlow
+            {
+                TokenUrl = new Uri("https://localhost:7051/connect/token"),
+                Scopes = new Dictionary<string, string>
+                {
+                    { "catalog_api", "Access to Catalog API" },
+                    { "offline_access", "Refresh token" },
+                    { "openid", "OpenID" },
+                    { "profile", "Profile" }
+                }
+            }
+        }
+    });
+
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "oauth2"
+                }
+            },
+            new[] { "catalog_api" }
+        }
+    });
+});
+
 
 builder.Services.AddAutoMapper(typeof(CatalogMappingProfile));
 
@@ -38,7 +77,8 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
-        options.Authority = "https://localhost:5051"; // IdentityService endpoint
+        options.Authority = "https://localhost:7051";
+        options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = false
@@ -66,7 +106,15 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "CatalogService v1");
+
+        c.OAuthClientId("swagger-ui");
+        c.OAuthClientSecret("swagger-secret");
+        c.OAuthAppName("CatalogService Swagger");
+        c.OAuthUsePkce();
+    });
 }
 
 app.UseHttpsRedirection();

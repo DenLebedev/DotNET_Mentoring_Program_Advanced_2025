@@ -7,8 +7,9 @@ namespace IdentityService.Config
         public static IEnumerable<IdentityResource> IdentityResources =>
             new IdentityResource[]
             {
-                new IdentityResources.OpenId(),  // Required for OpenID Connect
-                new IdentityResources.Profile(), // Optional: includes name, email, etc.
+                new IdentityResources.OpenId(),
+                new IdentityResources.Profile(),
+                new IdentityResource("roles", "User role(s)", new[] { "role" })
             };
 
         public static IEnumerable<ApiScope> ApiScopes =>
@@ -16,7 +17,7 @@ namespace IdentityService.Config
             {
                 new ApiScope("catalog_api", "Access to Catalog API"),
                 new ApiScope("carting_api", "Access to Carting API"),
-                new ApiScope("offline_access", "Access to Refresh Token") // Built-in by spec
+                new ApiScope("offline_access", "Access to Refresh Token")
             };
 
         public static IEnumerable<ApiResource> ApiResources =>
@@ -24,11 +25,13 @@ namespace IdentityService.Config
             {
                 new ApiResource("catalog_api_resource", "Catalog API")
                 {
-                    Scopes = { "catalog_api" }
+                    Scopes = { "catalog_api" },
+                    UserClaims = { "role", "permission" }
                 },
                 new ApiResource("carting_api_resource", "Carting API")
                 {
-                    Scopes = { "carting_api" }
+                    Scopes = { "carting_api" },
+                    UserClaims = { "role", "permission" }
                 }
             };
 
@@ -38,15 +41,15 @@ namespace IdentityService.Config
                 new Client
                 {
                     ClientId = "swagger-ui",
-                    AllowedGrantTypes = GrantTypes.ResourceOwnerPassword, // For Swagger testing
+                    AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
                     ClientSecrets = { new Secret("swagger-secret".Sha256()) },
                     AllowedScopes = {
-                        "openid", "profile", "catalog_api", "carting_api", "offline_access"
+                        "openid", "profile", "roles", "catalog_api", "carting_api", "offline_access"
                     },
                     AllowOfflineAccess = true,
-                    AccessTokenLifetime = 900, // 15 mins
-                    RefreshTokenUsage = TokenUsage.ReUse, // Don't create a new one every time
-                    AbsoluteRefreshTokenLifetime = 2592000 // 30 days
+                    AccessTokenLifetime = 900,
+                    RefreshTokenUsage = TokenUsage.ReUse,
+                    AbsoluteRefreshTokenLifetime = 2592000
                 }
             };
     }

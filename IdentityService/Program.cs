@@ -20,13 +20,27 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddIdentityServer()
-    .AddAspNetIdentity<IdentityUser>()
-    .AddInMemoryIdentityResources(Config.IdentityResources)
-    .AddInMemoryApiScopes(Config.ApiScopes)
-    .AddInMemoryApiResources(Config.ApiResources)
-    .AddInMemoryClients(Config.Clients)
-    .AddDeveloperSigningCredential();
+builder.Services.AddIdentityServer(options =>
+{
+    options.EmitStaticAudienceClaim = true;
+})
+.AddAspNetIdentity<IdentityUser>()
+.AddInMemoryIdentityResources(Config.IdentityResources)
+.AddInMemoryApiScopes(Config.ApiScopes)
+.AddInMemoryApiResources(Config.ApiResources)
+.AddInMemoryClients(Config.Clients)
+.AddDeveloperSigningCredential();
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("https://localhost:7052", "https://localhost:7053") // Swagger UIs
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddControllers();
 
@@ -40,9 +54,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseRouting();
-
+app.UseCors();
 app.UseIdentityServer();
-
 app.MapControllers();
 
 app.Run();
