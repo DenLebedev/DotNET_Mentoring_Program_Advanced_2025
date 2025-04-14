@@ -1,0 +1,1 @@
+‰RsD:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\CatalogService.Application.csproj¢net8.0òCSharp12

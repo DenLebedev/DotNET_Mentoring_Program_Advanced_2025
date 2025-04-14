@@ -1,0 +1,1 @@
+~RhD:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CartingService.Tests\CartingService.Tests..csproj¢net8.0òCSharp12

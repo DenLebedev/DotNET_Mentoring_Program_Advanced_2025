@@ -1,0 +1,1 @@
+RiD:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Domain\CatalogService.Domain.csproj¢net8.0òCSharp12

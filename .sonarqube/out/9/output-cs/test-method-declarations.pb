@@ -1,0 +1,5 @@
+½
+rD:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogServices.IntegrationTests\CategoryControllerTests.cs CatalogServices.IntegrationTests\
+:CatalogService.Tests.Controllers.CategoriesControllerTestsGet_Categories_ReturnsOkStatusZ
+:CatalogService.Tests.Controllers.CategoriesControllerTestsGet_Products_ReturnsOkStatusk
+:CatalogService.Tests.Controllers.CategoriesControllerTests-Get_Products_ReturnsOkStatus_WithHateoasLinks

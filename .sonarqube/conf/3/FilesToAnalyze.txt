@@ -1,0 +1,3 @@
+﻿D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Infrastructure\Context\CatalogDbContext.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Infrastructure\Repositories\CategoryRepository.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Infrastructure\Repositories\ProductRepository.cs

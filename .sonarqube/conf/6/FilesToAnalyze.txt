@@ -1,0 +1,16 @@
+﻿D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\AWS\SqsPublisher.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\Common\Link.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\DTOs\CatalogItemUpdatedMessage.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\DTOs\CategoryDto.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\DTOs\CreateCategoryDto.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\DTOs\CreateProductDto.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\DTOs\LinkDto.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\DTOs\ProductDto.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\DTOs\UpdateCategoryDto.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\DTOs\UpdateProductDto.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\Intefaces\ICategoryService.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\Intefaces\IProductService.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\Intefaces\ISqsPublisher.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\Mappings\CatalogMappingProfile.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\Services\CategoryService.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Application\Services\ProductService.cs

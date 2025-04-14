@@ -1,0 +1,1 @@
+èRyD:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Infrastructure\CatalogService.Infrastructure.csproj¢net8.0ÚCSharp12
