@@ -138,6 +138,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/swagger")) await next();
+    else await next();
+});
 app.UseAuthentication();
 app.UseMiddleware<CartingService.Middleware.TokenLoggingMiddleware>();
 app.UseAuthorization();
