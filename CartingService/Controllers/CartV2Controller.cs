@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using CartingService.BLL.Interfaces;
+﻿using CartingService.BLL.Interfaces;
 using CartingService.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CartingService.Controllers.V2
 {

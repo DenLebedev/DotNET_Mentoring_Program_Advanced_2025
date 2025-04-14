@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace IdentityService.Data
 {
@@ -27,6 +27,9 @@ namespace IdentityService.Data
 
         private static async Task CreateUserIfNotExists(UserManager<IdentityUser> userManager, IdentityUser user, string role, string password, string[] permissions)
         {
+            if (string.IsNullOrEmpty(user.Email))
+                throw new ArgumentException("User email cannot be null or empty.", nameof(user.Email));
+
             var existingUser = await userManager.FindByEmailAsync(user.Email);
             if (existingUser != null)
                 return;

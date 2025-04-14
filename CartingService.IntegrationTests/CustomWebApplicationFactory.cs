@@ -1,12 +1,12 @@
-﻿using CartingService.BLL.Interfaces;
+﻿using System.IO;
+using CartingService.BLL.Interfaces;
+using CartingService.DTOs;
+using CartingService.Entities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Moq;
-using CartingService.Entities;
-using System.IO;
-using CartingService.DTOs;
 
 namespace CartingService.IntegrationTests
 {

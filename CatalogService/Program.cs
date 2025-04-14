@@ -1,16 +1,16 @@
-using CatalogService.Application.Mappings;
-using Microsoft.EntityFrameworkCore;
+using Amazon.SQS;
 using AutoMapper;
+using CatalogService.Application.AWS;
+using CatalogService.Application.Intefaces;
+using CatalogService.Application.Mappings;
 using CatalogService.Application.Services;
 using CatalogService.Domain.Interfaces;
-using CatalogService.Infrastructure.Repositories;
 using CatalogService.Infrastructure.Context;
+using CatalogService.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Mvc;
-using Amazon.SQS;
-using CatalogService.Application.Intefaces;
-using CatalogService.Application.AWS;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 
@@ -92,7 +92,15 @@ builder.Services.AddAuthorization(options =>
 
 // Add services for HATEOAS
 builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
-builder.Services.AddScoped<IUrlHelper>(x => x.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(x.GetRequiredService<IActionContextAccessor>().ActionContext));
+builder.Services.AddScoped<IUrlHelper>(x =>
+{
+    var actionContextAccessor = x.GetRequiredService<IActionContextAccessor>();
+    if (actionContextAccessor.ActionContext == null)
+    {
+        throw new InvalidOperationException("ActionContext cannot be null.");
+    }
+    return x.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(actionContextAccessor.ActionContext);
+});
 
 builder.Services.AddDbContext<CatalogDbContext>(options =>
     options.UseMySql(

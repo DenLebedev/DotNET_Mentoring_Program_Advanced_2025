@@ -1,10 +1,10 @@
+using System.Security.Claims;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using IdentityService.Config;
 using IdentityService.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 

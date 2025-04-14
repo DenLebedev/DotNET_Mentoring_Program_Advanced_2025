@@ -1,7 +1,7 @@
-﻿using Amazon.SQS;
+﻿using System.Text.Json;
+using Amazon.SQS;
 using CatalogService.Application.Intefaces;
 using Microsoft.Extensions.Configuration;
-using System.Text.Json;
 
 namespace CatalogService.Application.AWS
 {
