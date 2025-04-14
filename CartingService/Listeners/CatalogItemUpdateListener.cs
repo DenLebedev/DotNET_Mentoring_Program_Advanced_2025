@@ -1,12 +1,12 @@
-﻿using Amazon.SQS;
+﻿using System.Text.Json;
+using Amazon.SQS;
 using Amazon.SQS.Model;
-using System.Text.Json;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
+using CartingService.BLL.Interfaces;
 using CartingService.DTOs;
 using Microsoft.AspNetCore.Cors.Infrastructure;
-using CartingService.BLL.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace CartingService.Listeners
 {

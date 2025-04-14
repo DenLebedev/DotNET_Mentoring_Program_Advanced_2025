@@ -2,8 +2,8 @@
 using CatalogService.Application.Common;
 using CatalogService.Application.DTOs;
 using CatalogService.Application.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogService.Controllers
 {

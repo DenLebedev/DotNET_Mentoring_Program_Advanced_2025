@@ -1,0 +1,6 @@
+†
+bD:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CatalogService.Tests\CategoryServiceTest.csCatalogService.Tests^
+2CatalogService.Tests.Services.CategoryServiceTests(AddAsync_ThrowsException_WhenNameIsEmptyX
+2CatalogService.Tests.Services.CategoryServiceTests"AddAsync_CallsRepository_WhenValidY
+2CatalogService.Tests.Services.CategoryServiceTests#GetByIdAsync_ReturnsNull_IfNotFoundu
+2CatalogService.Tests.Services.CategoryServiceTests?DeleteCategoryWithProductsAsync_ShouldDeleteCategoryAndProducts

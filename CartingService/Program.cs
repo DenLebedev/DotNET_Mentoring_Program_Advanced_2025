@@ -1,14 +1,14 @@
-using Microsoft.OpenApi.Models;
-using CartingService.BLL.Interfaces;
+using Amazon.SQS;
 using CartingService.BLL;
+using CartingService.BLL.Interfaces;
 using CartingService.DAL;
 using CartingService.DAL.Interfaces;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using Microsoft.AspNetCore.Mvc;
-using CartingService.Mappings;
-using Amazon.SQS;
 using CartingService.Listeners;
+using CartingService.Mappings;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -138,6 +138,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/swagger")) await next();
+    else await next();
+});
 app.UseAuthentication();
 app.UseMiddleware<CartingService.Middleware.TokenLoggingMiddleware>();
 app.UseAuthorization();

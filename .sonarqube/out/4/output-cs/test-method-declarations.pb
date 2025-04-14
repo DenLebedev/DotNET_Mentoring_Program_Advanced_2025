@@ -1,0 +1,4 @@
+É
+pD:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CartingService.IntegrationTests\CartBLIntegrationTests.csCartingService.IntegrationTestsU
+6CartingService.IntegrationTests.CartBLIntegrationTestsAddItem_ShouldAddItemToCart]
+6CartingService.IntegrationTests.CartBLIntegrationTests#DeleteItem_ShouldRemoveItemFromCart

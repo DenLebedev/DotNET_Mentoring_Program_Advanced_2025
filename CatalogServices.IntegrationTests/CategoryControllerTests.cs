@@ -1,14 +1,14 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
+using CatalogService.Application.Common;
 using CatalogService.Application.DTOs;
-using Microsoft.AspNetCore.Mvc.Testing;
+using CatalogService.Application.Services;
+using CatalogService.Domain.Entities;
+using CatalogService.Domain.Interfaces;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Moq;
 using Moq.Protected;
-using System.Net;
-using CatalogService.Application.Services;
-using CatalogService.Application.Common;
-using CatalogService.Domain.Interfaces;
-using CatalogService.Domain.Entities;
 
 namespace CatalogService.Tests.Controllers;
 

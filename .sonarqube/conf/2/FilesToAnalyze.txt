@@ -1,0 +1,12 @@
+﻿D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\IdentityService\Config\Config.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\IdentityService\Data\ApplicationDbContext.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\IdentityService\Data\DbInitializer.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\IdentityService\Program.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\IdentityService\obj\Debug\net8.0\IdentityService.GlobalUsings.g.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\IdentityService\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\IdentityService\obj\Debug\net8.0\IdentityService.AssemblyInfo.cs
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\IdentityService\appsettings.Development.json
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\IdentityService\appsettings.json
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\IdentityService\keys\is-signing-key-E48859A6205B9C20E41A4173F0105C7A.json
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\IdentityService\tempkey.jwk
+D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\IdentityService\Properties\launchSettings.json

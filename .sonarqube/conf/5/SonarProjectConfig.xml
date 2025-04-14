@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SonarProjectConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.sonarsource.com/msbuild/analyzer/2021/1">
+  <AnalysisConfigPath>D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\.sonarqube\conf\SonarQubeAnalysisConfig.xml</AnalysisConfigPath>
+  <ProjectPath>D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\CartingService.Tests\CartingService.Tests..csproj</ProjectPath>
+  <FilesToAnalyzePath>D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\.sonarqube\conf\5\FilesToAnalyze.txt</FilesToAnalyzePath>
+  <OutPath>D:\EBSCO\GitHub\DotNET_Mentoring_Program_Advanced_2025\.sonarqube\out\5</OutPath>
+  <ProjectType>Test</ProjectType>
+  <TargetFramework>net8.0</TargetFramework>
+</SonarProjectConfig>
