@@ -93,3 +93,37 @@ Access Token Details:
  - Roles: StoreCustomer
  - Permissions: read
 ```
+
+### [4/17/2025]
+
+#### Containerization and Orchestration
+
+The solution now supports full containerization using Docker and Docker Compose.
+
+##### Docker Compose Setup
+
+A docker-compose.yml file has been added at the root level. It defines the following services:
+- mysql: MySQL container for CatalogService
+- elasticmq: Local SQS simulator for message queue testing
+- identityservice: IdentityServer for user authentication
+- catalogservice: Catalog microservice
+- cartingservice: Cart microservice
+
+##### Instructions
+1. Build and start all containers:
+```
+docker-compose up --buildTest in Swagger:
+```
+2. Test in Swagger:
+Navigate to:
+- IdentityService: http://localhost:7051/swagger
+- CatalogService: http://localhost:8080/swagger
+- CartingService: http://localhost:7053/swaggers
+
+##### Volumes
+- Database and LiteDB data is persisted in local Docker volumes
+
+##### File Locations
+- ./scripts/ - SQL schema
+- docker-compose.yml - Compose orchestration
+- appsettings.Docker.json - Used for Docker environment configuration

@@ -1,3 +1,5 @@
+using Amazon.Runtime;
+using Amazon;
 using Amazon.SQS;
 using AutoMapper;
 using CatalogService.Application.AWS;
@@ -16,6 +18,22 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
+// Load IdentityServer authority from configuration
+var identityAuthority = builder.Configuration["Identity:Authority"];
+
+if (string.IsNullOrEmpty(identityAuthority))
+    throw new InvalidOperationException("Missing Identity:Authority configuration.");
+
+var swaggerTokenUrl = builder.Environment.EnvironmentName == "Docker"
+    ? "http://localhost:7051/connect/token"
+    : $"{identityAuthority}/connect/token";
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -31,7 +49,7 @@ builder.Services.AddSwaggerGen(c =>
         {
             Password = new Microsoft.OpenApi.Models.OpenApiOAuthFlow
             {
-                TokenUrl = new Uri("https://localhost:7051/connect/token"),
+                TokenUrl = new Uri(swaggerTokenUrl),
                 Scopes = new Dictionary<string, string>
                 {
                     { "catalog_api", "Access to Catalog API" },
@@ -63,8 +81,32 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddAutoMapper(typeof(CatalogMappingProfile));
 
 // Add AWS SQS support
-builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
-builder.Services.AddAWSService<IAmazonSQS>();
+var awsSection = builder.Configuration.GetSection("AWS");
+var serviceUrl = awsSection.GetValue<string>("ServiceURL");
+var region = awsSection.GetValue<string>("Region");
+var accessKey = awsSection.GetValue<string>("AccessKey");
+var secretKey = awsSection.GetValue<string>("SecretKey");
+
+if (!string.IsNullOrEmpty(serviceUrl))
+{
+    // Local ElasticMQ in Docker
+    var sqsConfig = new AmazonSQSConfig
+    {
+        RegionEndpoint = RegionEndpoint.GetBySystemName(region),
+        ServiceURL = serviceUrl,
+        UseHttp = true
+    };
+
+    var credentials = new BasicAWSCredentials(accessKey, secretKey);
+    builder.Services.AddSingleton<IAmazonSQS>(new AmazonSQSClient(credentials, sqsConfig));
+}
+else
+{
+    // Real AWS environment (IAM, EC2, profile, etc.)
+    builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+    builder.Services.AddAWSService<IAmazonSQS>();
+}
+
 builder.Services.AddScoped<ISqsPublisher, SqsPublisher>();
 
 // Add Application & Infrastructure dependencies
@@ -77,8 +119,8 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
-        options.Authority = "https://localhost:7051";
-        options.RequireHttpsMetadata = false;
+        options.Authority = identityAuthority;
+        options.RequireHttpsMetadata = identityAuthority.StartsWith("https://");
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = false
@@ -105,13 +147,14 @@ builder.Services.AddScoped<IUrlHelper>(x =>
 builder.Services.AddDbContext<CatalogDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        new MySqlServerVersion(new Version(8, 0, 34))
+        new MySqlServerVersion(new Version(8, 0, 34)),
+        mySqlOptions => mySqlOptions.EnableRetryOnFailure()
     )
 );
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if(app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>

@@ -1,0 +1,64 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: YourPassword123
+      MYSQL_DATABASE: CatalogServiceDB
+    ports:
+      - "43060:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+
+  elasticmq:
+    image: softwaremill/elasticmq
+    container_name: elasticmq
+    ports:
+      - "9324:9324"   # SQS endpoint
+      - "9325:9325"   # Web UI (optional)
+
+  identityservice:
+    build:
+      context: ./IdentityService
+    container_name: identityservice
+    ports:
+      - "7051:7051"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+
+  catalogservice:
+    build:
+      context: .
+      dockerfile: CatalogService/Dockerfile
+    container_name: catalogservice
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - mysql
+      - identityservice
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+
+  cartingservice:
+    build:
+      context: ./CartingService
+    container_name: cartingservice
+    ports:
+      - "8081:8081"
+    depends_on:
+      - elasticmq
+      - identityservice
+    volumes:
+      - carting_data:/data
+      - ${USERPROFILE}/.aws:/root/.aws:ro
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      AWS_PROFILE: catalog-sqs-dev
+
+volumes:
+  mysql_data:
+  carting_data:
