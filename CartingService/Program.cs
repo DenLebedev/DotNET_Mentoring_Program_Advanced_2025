@@ -5,12 +5,29 @@ using CartingService.DAL;
 using CartingService.DAL.Interfaces;
 using CartingService.Listeners;
 using CartingService.Mappings;
+using CartingService.Options;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables();
+
+// Load IdentityServer authority from configuration
+var identityAuthority = builder.Configuration["Identity:Authority"];
+var swaggerTokenUrl = builder.Environment.EnvironmentName == "Docker"
+    ? "http://localhost:7051/connect/token"
+    : $"{identityAuthority}/connect/token";
+
+// Configure LiteDb connection
+builder.Services.Configure<LiteDbOptions>(builder.Configuration.GetSection("LiteDbOptions"));
 
 // Add services to the container
 builder.Services.AddControllers();
@@ -18,7 +35,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Register the IUnitOfWork and ICartBL services
-builder.Services.AddScoped<IUnitOfWork>(sp => new LiteDBUnitOfWork("Filename=CartingService.db;Connection=shared"));
+builder.Services.AddScoped<IUnitOfWork>(sp =>
+{
+    var options = sp.GetRequiredService<IOptions<LiteDbOptions>>().Value;
+    return new LiteDBUnitOfWork($"Filename={options.DatabasePath};Connection=shared");
+});
 builder.Services.AddScoped<ICartBL, CartBL>();
 
 // Add AWS SQS support
@@ -53,14 +74,14 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<SwaggerDefaultValues>();
     options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
 
-    options.AddSecurityDefinition("oauth2", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
     {
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.OAuth2,
-        Flows = new Microsoft.OpenApi.Models.OpenApiOAuthFlows
+        Type = SecuritySchemeType.OAuth2,
+        Flows = new OpenApiOAuthFlows
         {
-            Password = new Microsoft.OpenApi.Models.OpenApiOAuthFlow
+            Password = new OpenApiOAuthFlow
             {
-                TokenUrl = new Uri("https://localhost:7051/connect/token"),
+                TokenUrl = new Uri(swaggerTokenUrl),
                 Scopes = new Dictionary<string, string>
                 {
                     { "carting_api", "Access to Carting API" },
@@ -95,8 +116,8 @@ builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
-        options.Authority = "https://localhost:7051";
-        options.RequireHttpsMetadata = false;
+        options.Authority = identityAuthority;
+        options.RequireHttpsMetadata = identityAuthority.StartsWith("https://");
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = false
@@ -115,7 +136,7 @@ var app = builder.Build();
 var provider = app.Services.GetRequiredService<Microsoft.AspNetCore.Mvc.ApiExplorer.IApiVersionDescriptionProvider>();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
 {
     app.UseSwagger();
 

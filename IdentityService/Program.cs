@@ -8,6 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables();
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseInMemoryDatabase("IdentityDB"));
 
@@ -20,9 +26,12 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+var issuerUri = builder.Configuration["IdentityServer:IssuerUri"];
+
 builder.Services.AddIdentityServer(options =>
 {
     options.EmitStaticAudienceClaim = true;
+    options.IssuerUri = issuerUri;
 })
 .AddAspNetIdentity<IdentityUser>()
 .AddInMemoryIdentityResources(Config.IdentityResources)
@@ -36,9 +45,14 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("https://localhost:7052", "https://localhost:7053") // Swagger UIs
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins(
+                "https://localhost:7052",
+                "https://localhost:7053",
+                "http://localhost:8080",
+                "http://localhost:8081"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
