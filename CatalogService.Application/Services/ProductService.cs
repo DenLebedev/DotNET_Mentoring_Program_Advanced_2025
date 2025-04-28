@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CatalogService.Application.DTOs;
+using CatalogService.Application.Events;
 using CatalogService.Application.Intefaces;
 using CatalogService.Domain.Entities;
 using CatalogService.Domain.Interfaces;
@@ -10,9 +11,9 @@ public class ProductService : IProductService
 {
     private readonly IProductRepository _repository;
     private readonly IMapper _mapper;
-    private readonly ISqsPublisher _publisher;
+    private readonly IEventPublisher _publisher;
 
-    public ProductService(IProductRepository repository, IMapper mapper, ISqsPublisher publisher)
+    public ProductService(IProductRepository repository, IMapper mapper, IEventPublisher publisher)
     {
         _repository = repository;
         _mapper = mapper;
@@ -73,7 +74,7 @@ public class ProductService : IProductService
             Price = product.Price
         };
 
-        await _publisher.PublishCatalogItemUpdatedAsync(message);
+        await _publisher.PublishAsync(message);
 
         return _mapper.Map<ProductDto>(product);
     }

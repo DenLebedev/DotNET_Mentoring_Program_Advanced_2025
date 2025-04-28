@@ -1,13 +1,13 @@
 using Amazon;
 using Amazon.Runtime;
 using Amazon.SQS;
-using AutoMapper;
-using CatalogService.Application.AWS;
+using CatalogService.Application.Events;
 using CatalogService.Application.Intefaces;
 using CatalogService.Application.Mappings;
 using CatalogService.Application.Services;
 using CatalogService.Domain.Interfaces;
 using CatalogService.Infrastructure.Context;
+using CatalogService.Infrastructure.Messaging;
 using CatalogService.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -107,7 +107,8 @@ else
     builder.Services.AddAWSService<IAmazonSQS>();
 }
 
-builder.Services.AddScoped<ISqsPublisher, SqsPublisher>();
+// Dependency Injection for Event Publisher
+builder.Services.AddScoped<IEventPublisher, SqsPublisher>();
 
 // Add Application & Infrastructure dependencies
 builder.Services.AddScoped<CategoryService>();
