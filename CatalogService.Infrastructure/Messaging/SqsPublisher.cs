@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using Amazon.SQS;
 using Amazon.SQS.Model;
-using Microsoft.Extensions.Configuration;
 using CatalogService.Application.Events;
+using Microsoft.Extensions.Configuration;
 
 namespace CatalogService.Infrastructure.Messaging;
 public class SqsPublisher : IEventPublisher
