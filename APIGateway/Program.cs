@@ -34,9 +34,6 @@ builder.Services.AddOcelot(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseAuthentication();
-app.UseAuthorization();
-
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -50,10 +47,15 @@ app.UseSwaggerForOcelotUI(opt =>
 
 app.UseRouting();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
+#pragma warning disable ASP0014 // Suggest using top level route registrations
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
+#pragma warning restore ASP0014 // Suggest using top level route registrations
 
 await app.UseOcelot();
 

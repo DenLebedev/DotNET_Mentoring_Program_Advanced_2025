@@ -89,6 +89,8 @@ namespace CatalogService.Controllers
         [AllowAnonymous]
         public ActionResult<Dictionary<string, string>> GetProductProperties(int id)
         {
+            _ = id;
+
             // You can extend this to look up real properties per ID if needed.
             var properties = new Dictionary<string, string>
             {
