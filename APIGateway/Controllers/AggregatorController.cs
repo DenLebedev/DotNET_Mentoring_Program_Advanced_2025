@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using APIGateway.Models;
+﻿using APIGateway.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace APIGateway.Controllers;
 
