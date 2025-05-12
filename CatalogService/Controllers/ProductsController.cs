@@ -84,6 +84,23 @@ namespace CatalogService.Controllers
             await _productService.DeleteAsync(id);
             return NoContent();
         }
+
+        [HttpGet("{id}/properties")]
+        [AllowAnonymous]
+        public ActionResult<Dictionary<string, string>> GetProductProperties(int id)
+        {
+            // You can extend this to look up real properties per ID if needed.
+            var properties = new Dictionary<string, string>
+            {
+                { "brand", "Samsung" },
+                { "model", "S10" },
+                { "memory", "128GB" },
+                { "color", "Black" }
+            };
+
+            return Ok(properties);
+        }
+
         private void CreateLinksForProduct(ProductDto productDto)
         {
             productDto.Links.Add(new Link(_urlHelper.Link("GetProductById", new { id = productDto.Id }), "self", "GET"));
