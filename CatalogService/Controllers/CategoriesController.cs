@@ -4,6 +4,7 @@ using CatalogService.Application.DTOs;
 using CatalogService.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CatalogService.Controllers
 {
@@ -14,24 +15,35 @@ namespace CatalogService.Controllers
         private readonly CategoryService _categoryService;
         private readonly IMapper _mapper;
         private readonly IUrlHelper _urlHelper;
+        private readonly IMemoryCache _cache;
 
-        public CategoriesController(CategoryService categoryService, IMapper mapper, IUrlHelper urlHelper)
+        public CategoriesController(CategoryService categoryService, IMapper mapper, IUrlHelper urlHelper, IMemoryCache cache)
         {
             _categoryService = categoryService;
             _mapper = mapper;
             _urlHelper = urlHelper;
+            _cache = cache;
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
-            var categories = await _categoryService.GetAllAsync();
-            var categoryDtos = _mapper.Map<IEnumerable<CategoryDto>>(categories);
+            const string cacheKey = "category_list";
 
-            foreach (var categoryDto in categoryDtos)
+            if (!_cache.TryGetValue(cacheKey, out IEnumerable<CategoryDto> categoryDtos))
             {
-                CreateLinksForCategory(categoryDto);
+                var categories = await _categoryService.GetAllAsync();
+                categoryDtos = _mapper.Map<IEnumerable<CategoryDto>>(categories);
+
+                foreach (var categoryDto in categoryDtos)
+                {
+                    CreateLinksForCategory(categoryDto);
+                }
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(1));
+
+                _cache.Set(cacheKey, categoryDtos, cacheEntryOptions);
             }
 
             return Ok(categoryDtos);

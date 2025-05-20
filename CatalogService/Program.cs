@@ -37,6 +37,7 @@ var swaggerTokenUrl = builder.Environment.EnvironmentName == "Docker"
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddMemoryCache();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "CatalogService", Version = "v1" });

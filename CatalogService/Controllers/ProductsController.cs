@@ -4,6 +4,7 @@ using CatalogService.Application.DTOs;
 using CatalogService.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CatalogService.Controllers
 {
@@ -14,24 +15,36 @@ namespace CatalogService.Controllers
         private readonly ProductService _productService;
         private readonly IMapper _mapper;
         private readonly IUrlHelper _urlHelper;
+        private readonly IMemoryCache _cache;
 
-        public ProductsController(ProductService productService, IMapper mapper, IUrlHelper urlHelper)
+        public ProductsController(ProductService productService, IMapper mapper, IUrlHelper urlHelper, IMemoryCache cache)
         {
             _productService = productService;
             _mapper = mapper;
             _urlHelper = urlHelper;
+            _cache = cache;
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Get([FromQuery] int? categoryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var products = await _productService.GetProductsAsync(categoryId, page, pageSize);
-            var productDtos = _mapper.Map<IEnumerable<ProductDto>>(products);
+            var cacheKey = $"products_{categoryId?.ToString() ?? "all"}_{page}_{pageSize}";
 
-            foreach (var productDto in productDtos)
+            if (!_cache.TryGetValue(cacheKey, out IEnumerable<ProductDto> productDtos))
             {
-                CreateLinksForProduct(productDto);
+                var products = await _productService.GetProductsAsync(categoryId, page, pageSize);
+                productDtos = _mapper.Map<IEnumerable<ProductDto>>(products);
+
+                foreach (var productDto in productDtos)
+                {
+                    CreateLinksForProduct(productDto);
+                }
+
+                var cacheOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(1));
+
+                _cache.Set(cacheKey, productDtos, cacheOptions);
             }
 
             return Ok(productDtos);
