@@ -7,6 +7,12 @@ using Ocelot.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add Application Insights
+builder.Services.AddApplicationInsightsTelemetry(options =>
+{
+    options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
+
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
 builder.Services.AddControllers();

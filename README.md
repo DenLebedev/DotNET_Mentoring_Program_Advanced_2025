@@ -127,3 +127,14 @@ Navigate to:
 - ./scripts/ - SQL schema
 - docker-compose.yml - Compose orchestration
 - appsettings.Docker.json - Used for Docker environment configuration
+
+### [5/23/2025]
+
+#### API Gateway Integration
+- API Gateway is implemented using Ocelot.
+- GatewayService listens on https://localhost:7050 and serves as the entry point for client requests.
+- It forwards incoming requests to either CatalogService or CartingService based on configured routing rules.
+- Authentication is enforced at the gateway level by validating JWT tokens issued by IdentityService.
+- The gateway configuration is defined in GatewayService/ocelot.json.
+- The setup supports local development only and does not include Docker or containerization.
+- Swagger UI is available at https://localhost:7050/swagger to explore API endpoints through the gateway.
