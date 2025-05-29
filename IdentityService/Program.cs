@@ -3,10 +3,31 @@ using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using IdentityService.Config;
 using IdentityService.Data;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Application Insights
+builder.Services.AddApplicationInsightsTelemetry(options =>
+{
+    options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+});
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "IdentityService")
+    .WriteTo.Console()
+    .WriteTo.ApplicationInsights(
+        new TelemetryConfiguration { ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"] },
+        TelemetryConverter.Traces)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())

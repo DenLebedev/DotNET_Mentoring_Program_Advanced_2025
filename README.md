@@ -127,3 +127,36 @@ Navigate to:
 - ./scripts/ - SQL schema
 - docker-compose.yml - Compose orchestration
 - appsettings.Docker.json - Used for Docker environment configuration
+
+### [5/23/2025]
+
+#### API Gateway Integration
+- API Gateway is implemented using Ocelot.
+- GatewayService listens on https://localhost:7050 and serves as the entry point for client requests.
+- It forwards incoming requests to either CatalogService or CartingService based on configured routing rules.
+- Authentication is enforced at the gateway level by validating JWT tokens issued by IdentityService.
+- The gateway configuration is defined in GatewayService/ocelot.json.
+- The setup supports local development only and does not include Docker or containerization.
+- Swagger UI is available at https://localhost:7050/swagger to explore API endpoints through the gateway.
+
+### [5/29/2025]
+-   **Advanced Logging and Tracing** has been integrated across all services.
+
+#### Logging with Serilog
+- Serilog is configured in all services (`CatalogService`, `CartingService`, `APIGateway`, `IdentityService`).
+- Logs are output to both Console and Azure Application Insights (using `Serilog.Sinks.ApplicationInsights`).
+- All logs include a structured `CorrelationId` for traceability.
+
+#### Correlation ID Middleware
+- Middleware automatically handles `X-Correlation-ID` header:
+  - Generates a new Correlation ID if missing
+  - Adds the ID to the response header
+  - Stores the ID in `HttpContext.Items` for use in controllers
+  - Adds the ID to `Activity.Baggage` and `Serilog.LogContext` for full trace propagation and log enrichment
+
+#### Distributed Tracing
+- Application Insights SDK automatically tracks incoming requests and HTTP dependencies.
+
+#### Observability in Azure
+- Azure Application Insights is configured for all services.
+- End-to-end transactions can be visualized using `Transaction Search` or `Application Map` in the Azure Portal.
