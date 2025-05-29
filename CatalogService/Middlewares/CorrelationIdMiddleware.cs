@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Http;
+using Serilog.Context;
 
 public class CorrelationIdMiddleware
 {
@@ -15,16 +15,18 @@ public class CorrelationIdMiddleware
             : Guid.NewGuid().ToString();
 
         context.Response.Headers[CorrelationHeader] = correlationId;
+        context.Items[CorrelationHeader] = correlationId;
 
+        // Add to Activity and Baggage for trace propagation
         var activity = new Activity("Incoming Request");
         activity.SetIdFormat(ActivityIdFormat.W3C);
         activity.SetParentId(Activity.Current?.Id);
         activity.Start();
         activity.AddTag("CorrelationId", correlationId);
-
-        context.Items[CorrelationHeader] = correlationId;
+        activity.AddBaggage("CorrelationId", correlationId);
 
         using (activity)
+        using (LogContext.PushProperty("CorrelationId", correlationId))
         {
             await _next(context);
         }

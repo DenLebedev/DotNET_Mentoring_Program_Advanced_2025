@@ -6,10 +6,12 @@ using CartingService.DAL.Interfaces;
 using CartingService.Listeners;
 using CartingService.Mappings;
 using CartingService.Options;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +21,19 @@ builder.Services.AddApplicationInsightsTelemetry(options =>
 {
     options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
 });
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "CartingService")
+    .WriteTo.Console()
+    .WriteTo.ApplicationInsights(
+        new TelemetryConfiguration { ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"] },
+        TelemetryConverter.Traces)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
