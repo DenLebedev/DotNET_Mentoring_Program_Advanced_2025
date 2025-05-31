@@ -12,13 +12,15 @@ public class CatalogMappingProfile : Profile
         // Category
         CreateMap<Category, CategoryDto>();
         CreateMap<CreateCategoryDto, Category>();
-        CreateMap<UpdateCategoryDto, Category>();
+        CreateMap<UpdateCategoryDto, Category>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
         CreateMap<Category, UpdateCategoryDto>();
 
         // Product
         CreateMap<Product, ProductDto>();
         CreateMap<CreateProductDto, Product>();
-        CreateMap<UpdateProductDto, Product>();
+        CreateMap<UpdateProductDto, Product>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
         CreateMap<Product, UpdateProductDto>();
     }
 }

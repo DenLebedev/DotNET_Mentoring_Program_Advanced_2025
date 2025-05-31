@@ -6,6 +6,7 @@ using CatalogService.Application.Intefaces;
 using CatalogService.Application.Mappings;
 using CatalogService.Application.Services;
 using CatalogService.Domain.Interfaces;
+using CatalogService.GraphQL.Types;
 using CatalogService.Infrastructure.Context;
 using CatalogService.Infrastructure.Messaging;
 using CatalogService.Infrastructure.Repositories;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -175,6 +177,19 @@ builder.Services.AddDbContext<CatalogDbContext>(options =>
     )
 );
 
+// Add GraphQL Server
+builder.Services
+    .AddGraphQLServer()
+    .ModifyRequestOptions(opts => opts.IncludeExceptionDetails = true)
+    .AddAuthorization()
+    .AddQueryType<CatalogService.GraphQL.Query>()
+    .AddMutationType<CatalogService.GraphQL.Mutation>()
+    .AddType<CategoryType>()
+    .AddType<ProductType>()
+    .AddProjections()
+    .AddFiltering()
+    .AddSorting();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
@@ -196,6 +211,7 @@ app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapGraphQL();
 app.Run();
 
 public partial class Program { }
