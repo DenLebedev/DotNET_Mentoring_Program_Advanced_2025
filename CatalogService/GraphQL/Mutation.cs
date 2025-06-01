@@ -15,7 +15,7 @@ public class Mutation
     public async Task<CategoryDto> AddCategory(
         CreateCategoryInput input,
         [Service] ICategoryService service,
-        ClaimsPrincipal user)
+        ClaimsPrincipal _)
     {
         var dto = new CreateCategoryDto
         {
