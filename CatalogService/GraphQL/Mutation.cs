@@ -1,4 +1,6 @@
-﻿using CatalogService.Application.DTOs;
+﻿using System.Security.Claims;
+using CatalogService.Application.DTOs;
+using CatalogService.Application.Intefaces;
 using CatalogService.Application.Services;
 using CatalogService.GraphQL.Inputs;
 using HotChocolate;
@@ -12,7 +14,8 @@ public class Mutation
     [Authorize(Roles = new[] { "Manager" })]
     public async Task<CategoryDto> AddCategory(
         CreateCategoryInput input,
-        [Service] CategoryService service)
+        [Service] ICategoryService service,
+        ClaimsPrincipal user)
     {
         var dto = new CreateCategoryDto
         {
