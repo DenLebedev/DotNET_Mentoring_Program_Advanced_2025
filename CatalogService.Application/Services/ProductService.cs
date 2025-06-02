@@ -83,4 +83,16 @@ public class ProductService : IProductService
     {
         await _repository.DeleteAsync(id);
     }
+
+    public async Task<ILookup<int, ProductDto>> GetProductsByCategoryIdsAsync(IEnumerable<int> categoryIds, CancellationToken cancellationToken)
+    {
+        var products = await _repository.GetByCategoryIdsAsync(categoryIds, cancellationToken);
+
+        // Map to DTOs
+        var productDtos = _mapper.Map<IEnumerable<ProductDto>>(products);
+
+        // Group by CategoryId
+        return productDtos.ToLookup(p => p.CategoryId);
+    }
+
 }

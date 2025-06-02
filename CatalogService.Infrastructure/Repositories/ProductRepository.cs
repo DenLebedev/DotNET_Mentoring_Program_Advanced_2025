@@ -50,4 +50,11 @@ public class ProductRepository : IProductRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task<IEnumerable<Product>> GetByCategoryIdsAsync(IEnumerable<int> categoryIds, CancellationToken cancellationToken)
+    {
+        return await _context.Products
+            .Where(p => categoryIds.Contains(p.CategoryId))
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -9,5 +9,7 @@ namespace CatalogService.Application.Intefaces
         Task<ProductDto> AddAsync(CreateProductDto productDto);
         Task<ProductDto?> UpdateAsync(int id, UpdateProductDto productDto);
         Task DeleteAsync(int id);
+        Task<ILookup<int, ProductDto>> GetProductsByCategoryIdsAsync(IEnumerable<int> categoryIds, CancellationToken cancellationToken);
+
     }
 }

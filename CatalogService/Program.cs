@@ -1,3 +1,5 @@
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.SQS;
@@ -6,6 +8,8 @@ using CatalogService.Application.Intefaces;
 using CatalogService.Application.Mappings;
 using CatalogService.Application.Services;
 using CatalogService.Domain.Interfaces;
+using CatalogService.GraphQL.DataLoaders;
+using CatalogService.GraphQL.Types;
 using CatalogService.Infrastructure.Context;
 using CatalogService.Infrastructure.Messaging;
 using CatalogService.Infrastructure.Repositories;
@@ -16,7 +20,9 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -137,18 +143,45 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
-// Add JWT authentication
-builder.Services.AddAuthentication("Bearer")
-    .AddJwtBearer("Bearer", options =>
-    {
-        options.Authority = identityAuthority;
-        options.RequireHttpsMetadata = identityAuthority.StartsWith("https://");
-        options.TokenValidationParameters = new TokenValidationParameters
+if (builder.Environment.EnvironmentName == "Test")
+{
+    const string jwtKey = "super_test_secret_key_for_jwt_2025!!";
+
+    builder.Services.AddAuthentication("Bearer")
+        .AddJwtBearer("Bearer", options =>
         {
-            ValidateAudience = false
-        };
-    });
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = "test",
+                ValidAudience = "test",
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+
+                RoleClaimType = "role"
+            };
+
+            options.MapInboundClaims = false;
+        });
+}
+else
+{
+    builder.Services.AddAuthentication("Bearer")
+        .AddJwtBearer("Bearer", options =>
+        {
+            options.Authority = identityAuthority;
+            options.RequireHttpsMetadata = identityAuthority.StartsWith("https://");
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false
+            };
+        });
+}
 
 builder.Services.AddAuthorization(options =>
 {
@@ -167,13 +200,35 @@ builder.Services.AddScoped<IUrlHelper>(x =>
     return x.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(actionContextAccessor.ActionContext);
 });
 
-builder.Services.AddDbContext<CatalogDbContext>(options =>
-    options.UseMySql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        new MySqlServerVersion(new Version(8, 0, 34)),
-        mySqlOptions => mySqlOptions.EnableRetryOnFailure()
-    )
-);
+if (builder.Environment.EnvironmentName == "Test")
+{
+    builder.Services.AddDbContext<CatalogDbContext>(options =>
+        options.UseInMemoryDatabase("TestCatalogDb"));
+}
+else
+{
+    builder.Services.AddDbContext<CatalogDbContext>(options =>
+        options.UseMySql(
+            builder.Configuration.GetConnectionString("DefaultConnection"),
+            new MySqlServerVersion(new Version(8, 0, 34)),
+            mySqlOptions => mySqlOptions.EnableRetryOnFailure()
+        )
+    );
+}
+
+// Add GraphQL Server
+builder.Services
+    .AddGraphQLServer()
+    .ModifyRequestOptions(opts => opts.IncludeExceptionDetails = true)
+    .AddAuthorization()
+    .AddQueryType<CatalogService.GraphQL.Query>()
+    .AddMutationType<CatalogService.GraphQL.Mutation>()
+    .AddType<CategoryType>()
+    .AddType<ProductType>()
+    .AddProjections()
+    .AddFiltering()
+    .AddSorting()
+    .AddDataLoader<ProductByCategoryIdDataLoader>();
 
 var app = builder.Build();
 
@@ -196,6 +251,7 @@ app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapGraphQL();
 app.Run();
 
 public partial class Program { }
