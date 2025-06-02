@@ -160,3 +160,104 @@ Navigate to:
 #### Observability in Azure
 - Azure Application Insights is configured for all services.
 - End-to-end transactions can be visualized using `Transaction Search` or `Application Map` in the Azure Portal.
+
+### [6/2/2025]
+-   **GraphQL API** 
+
+#### GraphQL Integration in CatalogService
+- CatalogService now supports GraphQL via HotChocolate.
+- The GraphQL endpoint is available at: https://localhost:7052/graphql
+- Authorization is enforced via role-based access:
+  - Only Manager users can create, update, or delete resources.
+  - All users can query public data.
+
+#### Available GraphQL Operations
+- Queries
+```
+# Get all categories
+query {
+  categories {
+    id
+    name
+    imageUrl
+    parentCategoryId
+    products {
+      id
+      name
+      price
+    }
+  }
+}
+
+# Get all products (with filters and sorting)
+query {
+  products(where: { price: { gt: 50 } }, order: { price: DESC }) {
+    id
+    name
+    description
+    price
+    category {
+      id
+      name
+    }
+  }
+}
+
+# Get single category by ID
+query {
+  category(id: 1) {
+    id
+    name
+    products {
+      name
+      price
+    }
+  }
+}
+```
+- Mutations
+```
+# Add new category (Manager only)
+mutation {
+  addCategory(input: {
+    name: "Books"
+    imageUrl: "https://example.com/book.png"
+    parentCategoryId: null
+  }) {
+    id
+    name
+  }
+}
+
+# Update existing product (Manager only)
+mutation {
+  updateProduct(id: 1, input: {
+    name: "Updated Product Name"
+    description: "Updated description"
+    imageUrl: "https://example.com/updated.png"
+    price: 199.99
+    amount: 10
+    categoryId: 2
+  }) {
+    id
+    name
+    price
+  }
+}
+
+# Delete product (Manager only)
+mutation {
+  deleteProduct(id: 3)
+}
+```
+
+#### Optimized Data Access
+- N+1 query prevention is implemented using DataLoader for batch-fetching related data (e.g., Products by Category).
+- Performance improvements are visible in nested queries (e.g., querying products under categories
+
+#### Notes for Testing
+- Test GraphQL using [Banana Cake Pop](https://chillicream.com/docs/bananacakepop) or Postman with the appropriate JWT bearer token.
+- Ensure you include the Authorization header:
+```
+Authorization: Bearer {access_token}
+```
