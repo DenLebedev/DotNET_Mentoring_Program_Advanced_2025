@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+option csharp_namespace = "CartingService.Protos";
+
+package carting;
+
+// Message representing an item in the cart
+message CartItem {
+  string id = 1;
+  string name = 2;
+  int32 quantity = 3;
+  double price = 4;
+}
+
+// Message to identify a user's cart
+message CartRequest {
+  string userId = 1;
+}
+
+// Response message that contains the entire cart
+message CartResponse {
+  repeated CartItem items = 1;
+}
+
+// Service definition for Cart operations
+service CartService {
+  // Unary RPC
+  rpc GetCartItems (CartRequest) returns (CartResponse);
+
+  // Server-streaming RPC
+  rpc StreamCartItems (CartRequest) returns (stream CartItem);
+
+  // Client-streaming RPC
+  rpc AddItemsToCart (stream CartItem) returns (CartResponse);
+
+  // Bidirectional-streaming RPC
+  rpc ChatAddItems (stream CartItem) returns (stream CartResponse);
+}
