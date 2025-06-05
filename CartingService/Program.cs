@@ -187,6 +187,7 @@ app.Use(async (context, next) =>
     else await next();
 });
 app.UseAuthentication();
+app.UseMiddleware<CartingService.Middleware.CorrelationIdMiddleware>();
 app.UseMiddleware<CartingService.Middleware.TokenLoggingMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
