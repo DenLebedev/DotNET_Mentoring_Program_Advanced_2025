@@ -261,3 +261,31 @@ mutation {
 ```
 Authorization: Bearer {access_token}
 ```
+
+### [6/5/2025]
+-   **gRPC API – CartingService** 
+
+CartingService also exposes a gRPC-based API alongside its RESTful endpoints, enabling efficient communication patterns such as client/server streaming and bidirectional interaction.
+
+#### Proto Definition
+
+The gRPC contract is defined in:  DotNET_Mentoring_Program_Advanced_2025\CartingService\Protos
+
+#### Supported RPC Calls
+
+| RPC Method         | Type                   | Description                                     |
+|--------------------|------------------------|-------------------------------------------------|
+| `GetCartItems`     | Unary                  | Retrieves all items in the cart for a user.     |
+| `StreamCartItems`  | Server Streaming       | Streams items of a user's cart one by one.      |
+| `AddItemsToCart`   | Client Streaming       | Sends a stream of items to add to a cart.       |
+| `ChatAddItems`     | Bidirectional Streaming| Sends/receives items and cart updates in stream.|
+
+---
+
+#### Metadata Requirements
+
+All methods (except `GetCartItems`, `StreamCartItems`) **require** a metadata header:
+- `user-id`: the ID of the current cart owner
+- Optional: `x-correlation-id` for logging and tracing
+
+---
