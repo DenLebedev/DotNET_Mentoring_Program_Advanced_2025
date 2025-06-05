@@ -54,6 +54,7 @@ builder.Services.Configure<LiteDbOptions>(builder.Configuration.GetSection("Lite
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddGrpc();
 
 // Register the IUnitOfWork and ICartBL services
 builder.Services.AddScoped<IUnitOfWork>(sp =>
@@ -186,9 +187,12 @@ app.Use(async (context, next) =>
     else await next();
 });
 app.UseAuthentication();
+app.UseMiddleware<CartingService.Middleware.CorrelationIdMiddleware>();
 app.UseMiddleware<CartingService.Middleware.TokenLoggingMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
+app.MapGrpcService<CartingService.GrpcServices.CartServiceGrpc>();
+app.MapGet("/", () => "This server hosts a gRPC CartingService. Use a gRPC client such as BloomRPC to interact with it.");
 
 app.Run();
 
